@@ -89,6 +89,11 @@ public class ChessPiece {
             for (int i = 0; i < directions.length; i++) {
                 walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 7);
             }
+        } else if (piece.getPieceType() == PieceType.KING) {
+            int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            for (int i = 0; i < directions.length; i++) {
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 1);
+            }
         }
 
         return possibleMoves;
