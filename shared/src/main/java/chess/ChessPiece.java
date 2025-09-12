@@ -76,12 +76,18 @@ public class ChessPiece {
 
         if (piece.getPieceType() == PieceType.BISHOP) {
             int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < directions.length; i++) {
                 walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
             }
         } else if (piece.getPieceType() == PieceType.ROOK) {
             int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < directions.length; i++) {
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
+            }
+        }
+        else if (piece.getPieceType() == PieceType.QUEEN) {
+            int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            for (int i = 0; i < directions.length; i++) {
                 walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
             }
         }
