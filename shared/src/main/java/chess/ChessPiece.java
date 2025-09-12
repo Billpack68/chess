@@ -129,23 +129,51 @@ public class ChessPiece {
     private void pawnWalk(int startRow, int startCol, List<ChessMove> possibleMoves,
                           ChessBoard board, ChessPosition myPosition) {
         if (color == ChessGame.TeamColor.WHITE) {
-            if (startRow == 2) {
+            boolean openInFront = false;
+            if (startRow < 8) {
+                openInFront = pawnCheckWalk(startRow+1, startCol, possibleMoves, board, myPosition);
+                pawnCheckCapture(startRow+1, startCol, possibleMoves, board, myPosition);
+            }
+            if (startRow == 2 && openInFront) {
                 pawnCheckWalk(startRow+2, startCol, possibleMoves, board, myPosition);
             }
-            pawnCheckWalk(startRow+1, startCol, possibleMoves, board, myPosition);
         } else {
-            if (startRow == 7) {
+            boolean openInFront = false;
+            if (startRow > 1) {
+                openInFront = pawnCheckWalk(startRow-1, startCol, possibleMoves, board, myPosition);
+                pawnCheckCapture(startRow-1, startCol, possibleMoves, board, myPosition);
+            }
+            if (startRow == 7 && openInFront) {
                 pawnCheckWalk(startRow-2, startCol, possibleMoves, board, myPosition);
             }
-            pawnCheckWalk(startRow-1, startCol, possibleMoves, board, myPosition);
+
         }
     }
 
-    private void pawnCheckWalk(int row, int col, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition) {
+    private boolean pawnCheckWalk(int row, int col, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition) {
         ChessPosition checkingPosition = new ChessPosition(row, col);
         ChessPiece pieceInSpot = board.getPiece(checkingPosition);
         if (pieceInSpot == null) {
             possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+            return true;
+        }
+        return false;
+    }
+
+    private void pawnCheckCapture(int row, int startCol, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition) {
+        if (startCol > 1) {
+            ChessPosition leftCapturePosition = new ChessPosition(row, startCol-1);
+            ChessPiece capturePiece = board.getPiece(leftCapturePosition);
+            if (capturePiece != null && capturePiece.getTeamColor() != color) {
+                possibleMoves.add(new ChessMove(myPosition, leftCapturePosition, null));
+            }
+        }
+        if (startCol < 8) {
+            ChessPosition rightCapturePosition = new ChessPosition(row, startCol+1);
+            ChessPiece capturePiece = board.getPiece(rightCapturePosition);
+            if (capturePiece != null && capturePiece.getTeamColor() != color) {
+                possibleMoves.add(new ChessMove(myPosition, rightCapturePosition, null));
+            }
         }
     }
 }
