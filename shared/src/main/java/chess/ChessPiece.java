@@ -155,6 +155,83 @@ public class ChessPiece {
                     }
                 }
             }
+        } else if (piece.getPieceType() == PieceType.ROOK) {
+            boolean checkingS = true;
+            boolean checkingN = true;
+            boolean checkingE = true;
+            boolean checkingW = true;
+
+            int checkingRow = row;
+            int checkingCol = col;
+            while (checkingS) {
+                checkingRow -= 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingRow == 0) {
+                    checkingS = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
+                    if (pieceInSpot != null) {
+                        checkingS = false;
+                    }
+                }
+            }
+
+            checkingRow = row;
+            checkingCol = col;
+            while (checkingN) {
+                checkingRow += 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingRow == 9) {
+                    checkingN = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
+                    if (pieceInSpot != null) {
+                        checkingN = false;
+                    }
+                }
+            }
+
+            checkingRow = row;
+            checkingCol = col;
+            while (checkingE) {
+                checkingCol += 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingCol == 9) {
+                    checkingE = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
+                    if (pieceInSpot != null) {
+                        checkingE = false;
+                    }
+                }
+            }
+
+            checkingRow = row;
+            checkingCol = col;
+            while (checkingW) {
+                checkingCol -= 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingCol == 0) {
+                    checkingW = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
+                    if (pieceInSpot != null) {
+                        checkingW = false;
+                    }
+                }
+            }
         }
 
         return possibleMoves;
