@@ -75,165 +75,35 @@ public class ChessPiece {
         int col = myPosition.getColumn();
 
         if (piece.getPieceType() == PieceType.BISHOP) {
-            boolean checkingSW = true;
-            boolean checkingNW = true;
-            boolean checkingSE = true;
-            boolean checkingNE = true;
-
-            int checkingRow = row;
-            int checkingCol = col;
-            while (checkingSW) {
-                checkingRow -= 1;
-                checkingCol -= 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingRow == 0 || checkingCol == 0) {
-                    checkingSW = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingSW = false;
-                    }
-                }
-            }
-
-            checkingRow = row;
-            checkingCol = col;
-            while (checkingNW) {
-                checkingRow += 1;
-                checkingCol -= 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingRow == 9 || checkingCol == 0) {
-                    checkingNW = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingNW = false;
-                    }
-                }
-            }
-
-            checkingRow = row;
-            checkingCol = col;
-            while (checkingNE) {
-                checkingRow += 1;
-                checkingCol += 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingRow == 9 || checkingCol == 9) {
-                    checkingNE = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingNE = false;
-                    }
-                }
-            }
-
-            checkingRow = row;
-            checkingCol = col;
-            while (checkingSE) {
-                checkingRow -= 1;
-                checkingCol += 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingRow == 0 || checkingCol == 9) {
-                    checkingSE = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingSE = false;
-                    }
-                }
-            }
+            walk(row, col, 1, 1, possibleMoves, board, myPosition);
+            walk(row, col, 1, -1, possibleMoves, board, myPosition);
+            walk(row, col, -1, 1, possibleMoves, board, myPosition);
+            walk(row, col, -1, -1, possibleMoves, board, myPosition);
         } else if (piece.getPieceType() == PieceType.ROOK) {
-            boolean checkingS = true;
-            boolean checkingN = true;
-            boolean checkingE = true;
-            boolean checkingW = true;
-
-            int checkingRow = row;
-            int checkingCol = col;
-            while (checkingS) {
-                checkingRow -= 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingRow == 0) {
-                    checkingS = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingS = false;
-                    }
-                }
-            }
-
-            checkingRow = row;
-            checkingCol = col;
-            while (checkingN) {
-                checkingRow += 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingRow == 9) {
-                    checkingN = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingN = false;
-                    }
-                }
-            }
-
-            checkingRow = row;
-            checkingCol = col;
-            while (checkingE) {
-                checkingCol += 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingCol == 9) {
-                    checkingE = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingE = false;
-                    }
-                }
-            }
-
-            checkingRow = row;
-            checkingCol = col;
-            while (checkingW) {
-                checkingCol -= 1;
-                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
-                if (checkingCol == 0) {
-                    checkingW = false;
-                } else {
-                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
-                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
-                    }
-                    if (pieceInSpot != null) {
-                        checkingW = false;
-                    }
-                }
-            }
+            walk(row, col, 1, 0, possibleMoves, board, myPosition);
+            walk(row, col, 0, 1, possibleMoves, board, myPosition);
+            walk(row, col, -1, 0, possibleMoves, board, myPosition);
+            walk(row, col, 0, -1, possibleMoves, board, myPosition);
         }
 
         return possibleMoves;
+    }
+
+    private void walk(int startRow, int startCol, int changeInRow, int changeInCol, List<ChessMove> possibleMoves,
+                      ChessBoard board, ChessPosition myPosition) {
+        int checkingRow = startRow + changeInRow;
+        int checkingCol = startCol + changeInCol;
+        while (checkingRow > 0 && checkingRow < 9 && checkingCol > 0 && checkingCol < 9) {
+            ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+            ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+            if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+            }
+            if (pieceInSpot != null) {
+                    break;
+            }
+            checkingRow += changeInRow;
+            checkingCol += changeInCol;
+        }
     }
 }
