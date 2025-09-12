@@ -75,15 +75,15 @@ public class ChessPiece {
         int col = myPosition.getColumn();
 
         if (piece.getPieceType() == PieceType.BISHOP) {
-            walk(row, col, 1, 1, possibleMoves, board, myPosition);
-            walk(row, col, 1, -1, possibleMoves, board, myPosition);
-            walk(row, col, -1, 1, possibleMoves, board, myPosition);
-            walk(row, col, -1, -1, possibleMoves, board, myPosition);
+            int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+            for (int i = 0; i < 4; i++) {
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
+            }
         } else if (piece.getPieceType() == PieceType.ROOK) {
-            walk(row, col, 1, 0, possibleMoves, board, myPosition);
-            walk(row, col, 0, 1, possibleMoves, board, myPosition);
-            walk(row, col, -1, 0, possibleMoves, board, myPosition);
-            walk(row, col, 0, -1, possibleMoves, board, myPosition);
+            int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            for (int i = 0; i < 4; i++) {
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
+            }
         }
 
         return possibleMoves;
