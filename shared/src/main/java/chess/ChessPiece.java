@@ -90,7 +90,9 @@ public class ChessPiece {
                     checkingSW = false;
                 } else {
                     ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
                     if (pieceInSpot != null) {
                         checkingSW = false;
                     }
@@ -107,7 +109,9 @@ public class ChessPiece {
                     checkingNW = false;
                 } else {
                     ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
                     if (pieceInSpot != null) {
                         checkingNW = false;
                     }
@@ -124,7 +128,9 @@ public class ChessPiece {
                     checkingNE = false;
                 } else {
                     ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
                     if (pieceInSpot != null) {
                         checkingNE = false;
                     }
@@ -141,7 +147,9 @@ public class ChessPiece {
                     checkingSE = false;
                 } else {
                     ChessPiece pieceInSpot = board.getPiece(checkingPosition);
-                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
+                        possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    }
                     if (pieceInSpot != null) {
                         checkingSE = false;
                     }
