@@ -99,6 +99,8 @@ public class ChessPiece {
             for (int i = 0; i < directions.length; i++) {
                 walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 1);
             }
+        } else if (piece.getPieceType() == PieceType.PAWN) {
+            pawnWalk(row, col, possibleMoves, board, myPosition);
         }
 
         return possibleMoves;
@@ -121,6 +123,29 @@ public class ChessPiece {
             checkingRow += changeInRow;
             checkingCol += changeInCol;
             steps += 1;
+        }
+    }
+
+    private void pawnWalk(int startRow, int startCol, List<ChessMove> possibleMoves,
+                          ChessBoard board, ChessPosition myPosition) {
+        if (color == ChessGame.TeamColor.WHITE) {
+            if (startRow == 2) {
+                pawnCheckWalk(startRow+2, startCol, possibleMoves, board, myPosition);
+            }
+            pawnCheckWalk(startRow+1, startCol, possibleMoves, board, myPosition);
+        } else {
+            if (startRow == 7) {
+                pawnCheckWalk(startRow-2, startCol, possibleMoves, board, myPosition);
+            }
+            pawnCheckWalk(startRow-1, startCol, possibleMoves, board, myPosition);
+        }
+    }
+
+    private void pawnCheckWalk(int row, int col, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition) {
+        ChessPosition checkingPosition = new ChessPosition(row, col);
+        ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+        if (pieceInSpot == null) {
+            possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
         }
     }
 }
