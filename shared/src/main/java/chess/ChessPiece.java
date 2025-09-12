@@ -94,6 +94,11 @@ public class ChessPiece {
             for (int i = 0; i < directions.length; i++) {
                 walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 1);
             }
+        } else if (piece.getPieceType() == PieceType.KNIGHT) {
+            int[][] directions = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+            for (int i = 0; i < directions.length; i++) {
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 1);
+            }
         }
 
         return possibleMoves;
