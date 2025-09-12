@@ -77,18 +77,17 @@ public class ChessPiece {
         if (piece.getPieceType() == PieceType.BISHOP) {
             int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
             for (int i = 0; i < directions.length; i++) {
-                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 7);
             }
         } else if (piece.getPieceType() == PieceType.ROOK) {
             int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
             for (int i = 0; i < directions.length; i++) {
-                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 7);
             }
-        }
-        else if (piece.getPieceType() == PieceType.QUEEN) {
+        } else if (piece.getPieceType() == PieceType.QUEEN) {
             int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
             for (int i = 0; i < directions.length; i++) {
-                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition);
+                walk(row, col, directions[i][0], directions[i][1], possibleMoves, board, myPosition, 7);
             }
         }
 
@@ -96,10 +95,11 @@ public class ChessPiece {
     }
 
     private void walk(int startRow, int startCol, int changeInRow, int changeInCol, List<ChessMove> possibleMoves,
-                      ChessBoard board, ChessPosition myPosition) {
+                      ChessBoard board, ChessPosition myPosition, int maxSteps) {
         int checkingRow = startRow + changeInRow;
         int checkingCol = startCol + changeInCol;
-        while (checkingRow > 0 && checkingRow < 9 && checkingCol > 0 && checkingCol < 9) {
+        int steps = 0;
+        while (checkingRow > 0 && checkingRow < 9 && checkingCol > 0 && checkingCol < 9 && steps < maxSteps) {
             ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
             ChessPiece pieceInSpot = board.getPiece(checkingPosition);
             if (pieceInSpot == null || pieceInSpot.getTeamColor() != color) {
@@ -110,6 +110,7 @@ public class ChessPiece {
             }
             checkingRow += changeInRow;
             checkingCol += changeInCol;
+            steps += 1;
         }
     }
 }
