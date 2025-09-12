@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -67,6 +69,86 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(myPosition);
+        List<ChessMove> possibleMoves = new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+
+        if (piece.getPieceType() == PieceType.BISHOP) {
+            boolean checkingSW = true;
+            boolean checkingNW = true;
+            boolean checkingSE = true;
+            boolean checkingNE = true;
+
+            int checkingRow = row;
+            int checkingCol = col;
+            while (checkingSW) {
+                checkingRow -= 1;
+                checkingCol -= 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingRow == 0 || checkingCol == 0) {
+                    checkingSW = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot != null) {
+                        checkingSW = false;
+                    }
+                }
+            }
+
+            checkingRow = row;
+            checkingCol = col;
+            while (checkingNW) {
+                checkingRow += 1;
+                checkingCol -= 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingRow == 9 || checkingCol == 0) {
+                    checkingNW = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot != null) {
+                        checkingNW = false;
+                    }
+                }
+            }
+
+            checkingRow = row;
+            checkingCol = col;
+            while (checkingNE) {
+                checkingRow += 1;
+                checkingCol += 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingRow == 9 || checkingCol == 9) {
+                    checkingNE = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot != null) {
+                        checkingNE = false;
+                    }
+                }
+            }
+
+            checkingRow = row;
+            checkingCol = col;
+            while (checkingSE) {
+                checkingRow -= 1;
+                checkingCol += 1;
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                if (checkingRow == 0 || checkingCol == 9) {
+                    checkingSE = false;
+                } else {
+                    ChessPiece pieceInSpot = board.getPiece(checkingPosition);
+                    possibleMoves.add(new ChessMove(myPosition, checkingPosition, null));
+                    if (pieceInSpot != null) {
+                        checkingSE = false;
+                    }
+                }
+            }
+        }
+
+        return possibleMoves;
     }
 }
