@@ -92,4 +92,43 @@ public class ChessBoard {
         addPiece(new ChessPosition(7, 7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         addPiece(new ChessPosition(7, 8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
     }
+
+    @Override
+    public String toString() {
+        String stringValue = "";
+        for (int row = 7; row >= 0; row --) {
+            stringValue += "|";
+            for (int col = 0; col < 8; col ++) {
+                ChessPiece pieceInSpot = squares[row][col];
+                String positionString = " ";
+                if (pieceInSpot != null) {
+                    ChessPiece.PieceType pieceType = pieceInSpot.getPieceType();
+                    if (pieceType == ChessPiece.PieceType.KING) {
+                        positionString = "k";
+                    } else if (pieceType == ChessPiece.PieceType.QUEEN) {
+                        positionString = "q";
+                    } else if (pieceType == ChessPiece.PieceType.KNIGHT) {
+                        positionString = "n";
+                    } else if (pieceType == ChessPiece.PieceType.BISHOP) {
+                        positionString = "b";
+                    } else if (pieceType == ChessPiece.PieceType.ROOK) {
+                        positionString = "r";
+                    } else if (pieceType == ChessPiece.PieceType.PAWN) {
+                        positionString = "p";
+                    }
+                }
+                if (pieceInSpot != null && pieceInSpot.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    stringValue += positionString.toUpperCase();
+                } else {
+                    stringValue += positionString;
+                }
+
+                stringValue += "|";
+            }
+            if (row > 0) {
+                stringValue += "\n";
+            }
+        }
+        return stringValue;
+    }
 }
