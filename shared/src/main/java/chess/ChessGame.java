@@ -88,7 +88,6 @@ public class ChessGame {
             }
         }
 
-
         return validMoveList;
     }
 
@@ -97,7 +96,7 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece.PieceType oldType = gameBoard.getPiece(startPosition).getPieceType();
-        ChessGame.TeamColor myTeamColor = gameBoard.getPiece(startPosition).getTeamColor();
+        TeamColor myTeamColor = gameBoard.getPiece(startPosition).getTeamColor();
         ChessPiece pieceCaptured = gameBoard.getPiece(endPosition);
 
         // Make the move
@@ -121,7 +120,7 @@ public class ChessGame {
         ChessPiece pieceInSpot = gameBoard.getPiece(startPosition);
 
         ChessPiece.PieceType newPieceType = move.getPromotionPiece();
-        ChessGame.TeamColor teamColor = pieceInSpot.getTeamColor();
+        TeamColor teamColor = pieceInSpot.getTeamColor();
         if (newPieceType == null) {
             newPieceType = pieceInSpot.getPieceType();
         }
@@ -133,7 +132,7 @@ public class ChessGame {
         // Get all the info I need
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
-        ChessGame.TeamColor myTeamColor = gameBoard.getPiece(startPosition).getTeamColor();
+        TeamColor myTeamColor = gameBoard.getPiece(startPosition).getTeamColor();
         ChessPosition pieceCapturedPosition = new ChessPosition(startPosition.getRow(), endPosition.getColumn());
         ChessPiece pieceCaptured = gameBoard.getPiece(pieceCapturedPosition);
 
@@ -146,6 +145,67 @@ public class ChessGame {
         ChessMove undoMove = new ChessMove(endPosition, startPosition, null);
         makeTestMove(undoMove);
         gameBoard.addPiece(pieceCapturedPosition, pieceCaptured);
+
+        return inCheck;
+    }
+
+    private Collection<ChessMove> validateCastle(ChessPosition startPosition) {
+        Collection<ChessMove> possibleCastles = new ArrayList<>();
+        if ((whiteCastleRight && teamTurn == TeamColor.WHITE) || (blackCastleRight && teamTurn == TeamColor.BLACK)) {
+            ChessPosition firstSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+1);
+            ChessPosition secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+2);
+            if (gameBoard.getPiece(firstSpot) != null || gameBoard.getPiece(secondSpot) != null) {
+                assert true;
+            } else {
+                ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
+                ChessMove secondMove = new ChessMove(firstSpot, secondSpot, null);
+                if (!validateCastleMove(firstMove, secondMove)) {
+                    ChessMove castle = new ChessMove(startPosition, secondSpot, null);
+                    possibleCastles.add(castle);
+                }
+            }
+        }
+        if ((whiteCastleLeft && teamTurn == TeamColor.WHITE) || (blackCastleLeft && teamTurn == TeamColor.BLACK)) {
+            ChessPosition firstSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-1);
+            ChessPosition secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-2);
+            ChessPosition thirdSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-3);
+            if (gameBoard.getPiece(firstSpot) != null || gameBoard.getPiece(secondSpot) != null
+                    || gameBoard.getPiece(thirdSpot) != null) {
+                assert true;
+            } else {
+                ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
+                ChessMove secondMove = new ChessMove(firstSpot, secondSpot, null);
+                if (!validateCastleMove(firstMove, secondMove)) {
+                    ChessMove castle = new ChessMove(startPosition, secondSpot, null);
+                    possibleCastles.add(castle);
+                }
+            }
+        }
+
+        return possibleCastles;
+    }
+
+    private boolean validateCastleMove(ChessMove firstMove, ChessMove secondMove) {
+        // Get all the info I need
+        ChessPosition startPosition = firstMove.getStartPosition();
+        ChessPosition firstPosition = firstMove.getEndPosition();
+        ChessPosition endPosition = secondMove.getEndPosition();
+        TeamColor myTeamColor = gameBoard.getPiece(startPosition).getTeamColor();
+        ChessMove undoMove;
+
+        // Make the move
+        makeTestMove(firstMove);
+        // See if I'm in check
+        boolean inCheck = isInCheck(myTeamColor);
+        if (!inCheck) {
+            makeTestMove(secondMove);
+            inCheck = isInCheck(myTeamColor);
+            undoMove = new ChessMove(endPosition, startPosition, null);
+        } else {
+            undoMove = new ChessMove(firstPosition, startPosition, null);
+        }
+        // Undo the move
+        makeTestMove(undoMove);
 
         return inCheck;
     }
