@@ -54,17 +54,54 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-//        ChessPiece pieceInSpot = gameBoard.getPiece(startPosition);
-//        if (pieceInSpot == null){
-//            return null;
-//        }
-//        Collection<ChessMove> possibleMoves = pieceInSpot.pieceMoves(gameBoard, startPosition);
-//        Collection<ChessMove> validMoveList = new ArrayList<>();
-//
-//        for (ChessMove move : possibleMoves) {
-//
-//        }
-        throw new RuntimeException("Not implemented");
+        ChessPiece pieceInSpot = gameBoard.getPiece(startPosition);
+        if (pieceInSpot == null){
+            return null;
+        }
+        Collection<ChessMove> possibleMoves = pieceInSpot.pieceMoves(gameBoard, startPosition);
+        Collection<ChessMove> validMoveList = new ArrayList<>();
+
+        for (ChessMove move : possibleMoves) {
+            if (!validateMove(move)) {
+                validMoveList.add(move);
+            }
+        }
+
+        return validMoveList;
+    }
+
+    private boolean validateMove(ChessMove move) {
+        // Get all the info I need
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece.PieceType oldType = gameBoard.getPiece(startPosition).getPieceType();
+        ChessGame.TeamColor myTeamColor = gameBoard.getPiece(startPosition).getTeamColor();
+        // Make the move
+        makeTestMove(move);
+        // See if I'm in check
+        boolean inCheck = isInCheck(myTeamColor);
+        // Undo the move
+        ChessMove undoMove = new ChessMove(endPosition, startPosition, oldType);
+        makeTestMove(undoMove);
+
+        return inCheck;
+    }
+
+    private void makeTestMove(ChessMove move){
+        // ONLY CALL WHEN I'M SURE THERE IS A PIECE THERE.
+        // THAT'S WHY IT'S PRIVATE
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+
+        ChessPiece pieceInSpot = gameBoard.getPiece(startPosition);
+
+        ChessPiece.PieceType newPieceType = move.getPromotionPiece();
+        ChessGame.TeamColor teamColor = pieceInSpot.getTeamColor();
+        if (newPieceType == null) {
+            newPieceType = pieceInSpot.getPieceType();
+        }
+        gameBoard.addPiece(endPosition, new ChessPiece(teamColor, newPieceType));
+        gameBoard.addPiece(startPosition, null);
     }
 
     /**
