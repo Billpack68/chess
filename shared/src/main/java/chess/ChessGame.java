@@ -404,13 +404,9 @@ public class ChessGame {
                 }
             }
         }
-
         for (ChessMove move : enemyMoves) {
-            if (move.getEndPosition().equals(myKingPosition)) {
-                return true;
-            }
+            if (move.getEndPosition().equals(myKingPosition)) { return true; }
         }
-        
         return false;
     }
 
@@ -427,10 +423,7 @@ public class ChessGame {
 
         Collection<ChessMove> myMoves = new ArrayList<>(findValidTeamMoves(teamColor));
 
-        if (myMoves.isEmpty()) {
-            return true;
-        }
-        return false;
+        return myMoves.isEmpty();
     }
 
     /**
@@ -446,10 +439,7 @@ public class ChessGame {
         }
         Collection<ChessMove> myMoves = new ArrayList<>(findValidTeamMoves(teamColor));
 
-        if (myMoves.isEmpty()) {
-            return true;
-        }
-        return false;
+        return myMoves.isEmpty();
     }
 
     private Collection<ChessMove> findValidTeamMoves(TeamColor teamColor) {
