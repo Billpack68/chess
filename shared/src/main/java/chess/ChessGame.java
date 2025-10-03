@@ -88,6 +88,8 @@ public class ChessGame {
             }
         }
 
+        validMoveList.addAll(validateCastle(startPosition));
+
         return validMoveList;
     }
 
@@ -154,7 +156,7 @@ public class ChessGame {
         if ((whiteCastleRight && teamTurn == TeamColor.WHITE) || (blackCastleRight && teamTurn == TeamColor.BLACK)) {
             ChessPosition firstSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+1);
             ChessPosition secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+2);
-            if (gameBoard.getPiece(firstSpot) != null || gameBoard.getPiece(secondSpot) != null) {
+            if (gameBoard.getPiece(firstSpot) != null || gameBoard.getPiece(secondSpot) != null || isInCheck(teamTurn)) {
                 assert true;
             } else {
                 ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
@@ -170,7 +172,7 @@ public class ChessGame {
             ChessPosition secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-2);
             ChessPosition thirdSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-3);
             if (gameBoard.getPiece(firstSpot) != null || gameBoard.getPiece(secondSpot) != null
-                    || gameBoard.getPiece(thirdSpot) != null) {
+                    || gameBoard.getPiece(thirdSpot) != null || isInCheck(teamTurn)) {
                 assert true;
             } else {
                 ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
@@ -294,6 +296,13 @@ public class ChessGame {
                 }
             }
             possibleEnPassant.removeAll(toRemove);
+        }
+
+        // Check if it was a castle and moves the rook if it needs to
+        if (gameBoard.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+            if (teamTurn == TeamColor.WHITE) {
+
+            }
         }
 
         if (teamTurn == TeamColor.WHITE){
