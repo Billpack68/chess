@@ -73,7 +73,7 @@ public class ChessGame {
         Collection<ChessMove> validMoveList = new ArrayList<>();
 
         for (ChessMove move : possibleMoves) {
-            if (!validateMove(move)) {
+            if (validateMove(move)) {
                 validMoveList.add(move);
             }
         }
@@ -81,7 +81,7 @@ public class ChessGame {
         if (!possibleEnPassant.isEmpty()) {
             for (ChessMove move : possibleEnPassant) {
                 if (move.getStartPosition().equals(startPosition)) {
-                    if (!validateEnPassant(move)) {
+                    if (validateEnPassant(move)) {
                         validMoveList.add(move);
                     }
                 }
@@ -108,7 +108,7 @@ public class ChessGame {
         makeTestMove(undoMove);
         gameBoard.addPiece(endPosition, pieceCaptured);
 
-        return inCheck;
+        return !inCheck;
     }
 
     private void makeTestMove(ChessMove move){
@@ -146,7 +146,7 @@ public class ChessGame {
         makeTestMove(undoMove);
         gameBoard.addPiece(pieceCapturedPosition, pieceCaptured);
 
-        return inCheck;
+        return !inCheck;
     }
 
     private Collection<ChessMove> validateCastle(ChessPosition startPosition) {
@@ -159,7 +159,7 @@ public class ChessGame {
             } else {
                 ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
                 ChessMove secondMove = new ChessMove(firstSpot, secondSpot, null);
-                if (!validateCastleMove(firstMove, secondMove)) {
+                if (validateCastleMove(firstMove, secondMove)) {
                     ChessMove castle = new ChessMove(startPosition, secondSpot, null);
                     possibleCastles.add(castle);
                 }
@@ -175,7 +175,7 @@ public class ChessGame {
             } else {
                 ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
                 ChessMove secondMove = new ChessMove(firstSpot, secondSpot, null);
-                if (!validateCastleMove(firstMove, secondMove)) {
+                if (validateCastleMove(firstMove, secondMove)) {
                     ChessMove castle = new ChessMove(startPosition, secondSpot, null);
                     possibleCastles.add(castle);
                 }
@@ -207,7 +207,7 @@ public class ChessGame {
         // Undo the move
         makeTestMove(undoMove);
 
-        return inCheck;
+        return !inCheck;
     }
 
     /**
