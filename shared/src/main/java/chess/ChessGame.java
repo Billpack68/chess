@@ -299,9 +299,16 @@ public class ChessGame {
         }
 
         // Check if it was a castle and moves the rook if it needs to
-        if (gameBoard.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
-            if (teamTurn == TeamColor.WHITE) {
-
+        if (gameBoard.getPiece(endPosition).getPieceType() == ChessPiece.PieceType.KING) {
+            int distance = endPosition.getColumn() - startPosition.getColumn();
+            if (distance == 2) {
+                gameBoard.addPiece(new ChessPosition(endPosition.getRow(), 8), null);
+                gameBoard.addPiece(new ChessPosition(endPosition.getRow(), 6),
+                        new ChessPiece(teamTurn, ChessPiece.PieceType.ROOK));
+            } else if (distance == -2) {
+                gameBoard.addPiece(new ChessPosition(endPosition.getRow(), 1), null);
+                gameBoard.addPiece(new ChessPosition(endPosition.getRow(), 4),
+                        new ChessPiece(teamTurn, ChessPiece.PieceType.ROOK));
             }
         }
 
