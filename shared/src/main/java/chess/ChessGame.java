@@ -123,7 +123,8 @@ public class ChessGame {
         }
 
         Collection<ChessMove> validMoves = validMoves(startPosition);
-        if (!validMoves.contains(move)) {
+        TeamColor pieceColor = pieceInSpot.getTeamColor();
+        if (!validMoves.contains(move) || pieceColor != teamTurn) {
             throw new InvalidMoveException("You can't do that!");
         }
 
