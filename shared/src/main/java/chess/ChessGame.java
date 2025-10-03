@@ -186,6 +186,17 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
+        return isInStalemate(teamColor);
+    }
+
+    /**
+     * Determines if the given team is in stalemate, which here is defined as having
+     * no valid moves while not in check.
+     *
+     * @param teamColor which team to check for stalemate
+     * @return True if the specified team is in stalemate, otherwise false
+     */
+    public boolean isInStalemate(TeamColor teamColor) {
         Collection<ChessMove> myMoves = new ArrayList<>();
         for (int checkingRow = 8; checkingRow > 0; checkingRow--) {
             for (int checkingCol = 1; checkingCol < 9; checkingCol++) {
@@ -204,17 +215,6 @@ public class ChessGame {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves while not in check.
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
-    public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
     }
 
     /**
