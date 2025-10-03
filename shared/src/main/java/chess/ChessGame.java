@@ -76,6 +76,8 @@ public class ChessGame {
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece.PieceType oldType = gameBoard.getPiece(startPosition).getPieceType();
         ChessGame.TeamColor myTeamColor = gameBoard.getPiece(startPosition).getTeamColor();
+        ChessPiece pieceCaptured = gameBoard.getPiece(endPosition);
+
         // Make the move
         makeTestMove(move);
         // See if I'm in check
@@ -83,6 +85,7 @@ public class ChessGame {
         // Undo the move
         ChessMove undoMove = new ChessMove(endPosition, startPosition, oldType);
         makeTestMove(undoMove);
+        gameBoard.addPiece(endPosition, pieceCaptured);
 
         return inCheck;
     }
