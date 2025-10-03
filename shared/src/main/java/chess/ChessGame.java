@@ -15,12 +15,22 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard gameBoard;
-    private Collection<ChessMove> possibleEnPassant = new ArrayList<>();
+    private Collection<ChessMove> possibleEnPassant;
+    private boolean whiteCastleRight;
+    private boolean whiteCastleLeft;
+    private boolean blackCastleRight;
+    private boolean blackCastleLeft;
 
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.gameBoard = new ChessBoard();
         gameBoard.resetBoard();
+
+        this.possibleEnPassant = new ArrayList<>();
+        this.whiteCastleRight = true;
+        this.whiteCastleLeft = true;
+        this.blackCastleRight = true;
+        this.blackCastleLeft = true;
     }
 
     /**
@@ -202,6 +212,8 @@ public class ChessGame {
             }
         }
 
+        checkIfMoveBreaksCastle(move);
+
         ChessPiece.PieceType newPieceType = move.getPromotionPiece();
         if (newPieceType == null) {
             newPieceType = pieceInSpot.getPieceType();
@@ -231,6 +243,48 @@ public class ChessGame {
         }
 
     }
+
+    /**
+     * Checks if a move that was just made (or about to be made)
+     * makes it so that the team can no longer castle,
+     * or in other words it checks if the king is moving or
+     * one of the rooks. Fun stuff. I should probably write these
+     * for more of my private helper methods, at least to stay organized
+     *
+     * @param move the move being performed
+     */
+    private void checkIfMoveBreaksCastle(ChessMove move) {
+        ChessPiece pieceMoving = gameBoard.getPiece(move.getStartPosition());
+        TeamColor pieceMovingColor = pieceMoving.getTeamColor();
+        if (pieceMoving.getPieceType() == ChessPiece.PieceType.KING) {
+            if (pieceMovingColor == TeamColor.WHITE) {
+                whiteCastleLeft = false;
+                whiteCastleRight = false;
+            } else {
+                blackCastleLeft = false;
+                blackCastleRight = false;
+            }
+        } else if (pieceMoving.getPieceType() == ChessPiece.PieceType.ROOK) {
+            if (pieceMovingColor == TeamColor.WHITE) {
+                ChessPosition rightStartPosition = new ChessPosition(1, 8);
+                ChessPosition leftStartPosition = new ChessPosition(1, 1);
+                if (whiteCastleRight && move.getStartPosition().equals(rightStartPosition)) {
+                    whiteCastleRight = false;
+                } else if (whiteCastleLeft && move.getStartPosition().equals(leftStartPosition)) {
+                    whiteCastleLeft = false;
+                }
+            } else {
+                ChessPosition rightStartPosition = new ChessPosition(8, 8);
+                ChessPosition leftStartPosition = new ChessPosition(8, 1);
+                if (blackCastleRight && move.getStartPosition().equals(rightStartPosition)) {
+                    blackCastleRight = false;
+                } else if (blackCastleLeft && move.getStartPosition().equals(leftStartPosition)) {
+                    blackCastleLeft = false;
+                }
+            }
+        }
+    }
+
 
     /**
      * Determines if the given team is in check
