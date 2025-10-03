@@ -213,13 +213,15 @@ public class ChessGame {
             possibleEnPassant.remove(move);
         }
         if (!possibleEnPassant.isEmpty()) {
+            List<ChessMove> toRemove = new ArrayList<>();
             for (ChessMove enPassant : possibleEnPassant) {
                 ChessPiece pieceInStartSpot = gameBoard.getPiece(enPassant.getStartPosition());
                 TeamColor teamColor = pieceInStartSpot.getTeamColor();
                 if (teamColor == teamTurn) {
-                    possibleEnPassant.remove(enPassant);
+                   toRemove.add(enPassant);
                 }
             }
+            possibleEnPassant.removeAll(toRemove);
         }
 
         if (teamTurn == TeamColor.WHITE){
