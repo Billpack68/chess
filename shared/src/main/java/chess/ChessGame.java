@@ -80,10 +80,8 @@ public class ChessGame {
 
         if (!possibleEnPassant.isEmpty()) {
             for (ChessMove move : possibleEnPassant) {
-                if (move.getStartPosition().equals(startPosition)) {
-                    if (validateEnPassant(move)) {
-                        validMoveList.add(move);
-                    }
+                if (move.getStartPosition().equals(startPosition) && validateEnPassant(move)) {
+                    validMoveList.add(move);
                 }
             }
         }
@@ -155,48 +153,53 @@ public class ChessGame {
 
     private Collection<ChessMove> validateCastle(ChessPosition startPosition, TeamColor kingColor) {
         Collection<ChessMove> possibleCastles = new ArrayList<>();
+        ChessPosition firstSpot;
+        ChessPosition secondSpot;
+        ChessPosition thirdSpot;
+        ChessPosition rookSpot;
+        ChessPiece rookPiece;
         if (((whiteCastleRight && kingColor == TeamColor.WHITE) || (blackCastleRight && kingColor == TeamColor.BLACK))
                 && startPosition.getColumn() == 5) {
-            ChessPosition firstSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+1);
-            ChessPosition secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+2);
-            ChessPosition rookSpot = new ChessPosition(startPosition.getRow(), 8);
-            ChessPiece rookPiece = gameBoard.getPiece(rookSpot);
+            firstSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+1);
+            secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+2);
+            rookSpot = new ChessPosition(startPosition.getRow(), 8);
+            rookPiece = gameBoard.getPiece(rookSpot);
             if (gameBoard.getPiece(firstSpot) != null || gameBoard.getPiece(secondSpot) != null
                     || isInCheck(kingColor) || rookPiece == null
                     || rookPiece.getPieceType() != ChessPiece.PieceType.ROOK
                     || startPosition.getColumn() != 5) {
                 assert true;
             } else {
-                ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
-                ChessMove secondMove = new ChessMove(firstSpot, secondSpot, null);
-                if (validateCastleMove(firstMove, secondMove)) {
-                    ChessMove castle = new ChessMove(startPosition, secondSpot, null);
-                    possibleCastles.add(castle);
-                }
+                checkIfCastleIntoCheck(startPosition, firstSpot, secondSpot, possibleCastles);
             }
         }
         if (((whiteCastleLeft && kingColor == TeamColor.WHITE) || (blackCastleLeft && kingColor == TeamColor.BLACK))
                 && startPosition.getColumn() == 5) {
-            ChessPosition firstSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-1);
-            ChessPosition secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-2);
-            ChessPosition thirdSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-3);
-            ChessPosition rookSpot = new ChessPosition(startPosition.getRow(), 1);
-            ChessPiece rookPiece = gameBoard.getPiece(rookSpot);
+            firstSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-1);
+            secondSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-2);
+            thirdSpot = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-3);
+            rookSpot = new ChessPosition(startPosition.getRow(), 1);
+            rookPiece = gameBoard.getPiece(rookSpot);
             if (gameBoard.getPiece(firstSpot) != null || gameBoard.getPiece(secondSpot) != null
                     || gameBoard.getPiece(thirdSpot) != null || isInCheck(kingColor) || rookPiece == null
                     || rookPiece.getPieceType() != ChessPiece.PieceType.ROOK) {
                 assert true;
             } else {
-                ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
-                ChessMove secondMove = new ChessMove(firstSpot, secondSpot, null);
-                if (validateCastleMove(firstMove, secondMove)) {
-                    ChessMove castle = new ChessMove(startPosition, secondSpot, null);
-                    possibleCastles.add(castle);
-                }
+                checkIfCastleIntoCheck(startPosition, firstSpot, secondSpot, possibleCastles);
             }
         }
 
         return possibleCastles;
+    }
+
+    private void checkIfCastleIntoCheck(ChessPosition startPosition, ChessPosition firstSpot,
+                                        ChessPosition secondSpot, Collection<ChessMove> possibleCastles) {
+        ChessMove firstMove = new ChessMove(startPosition, firstSpot, null);
+        ChessMove secondMove = new ChessMove(firstSpot, secondSpot, null);
+        if (validateCastleMove(firstMove, secondMove)) {
+            ChessMove castle = new ChessMove(startPosition, secondSpot, null);
+            possibleCastles.add(castle);
+        }
     }
 
     private boolean validateCastleMove(ChessMove firstMove, ChessMove secondMove) {
@@ -248,41 +251,7 @@ public class ChessGame {
         if (pieceInSpot.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (startPosition.getRow() - endPosition.getRow() == -2 ||
                     startPosition.getRow() - endPosition.getRow() == 2) {
-                if (endPosition.getColumn() > 1) {
-                    ChessPosition leftPosition = new ChessPosition(endPosition.getRow(), endPosition.getColumn()-1);
-                    ChessPiece pieceInLeft = gameBoard.getPiece(leftPosition);
-                    if (pieceInLeft != null && pieceInLeft.getTeamColor() != pieceInSpot.getTeamColor()
-                            && pieceInLeft.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        ChessPosition enPassantEndPosition;
-                        if (pieceInLeft.getTeamColor() == TeamColor.WHITE) {
-                            enPassantEndPosition = new ChessPosition(endPosition.getRow()+1,
-                                    endPosition.getColumn());
-                        } else {
-                            enPassantEndPosition = new ChessPosition(endPosition.getRow()-1,
-                                    endPosition.getColumn());
-                        }
-                        ChessMove enPassantMove = new ChessMove(leftPosition, enPassantEndPosition, null);
-                        possibleEnPassant.add(enPassantMove);
-                    }
-                }
-                if (endPosition.getColumn() < 8) {
-                    ChessPosition rightPosition = new ChessPosition(endPosition.getRow(),
-                            endPosition.getColumn()+1);
-                    ChessPiece pieceInRight = gameBoard.getPiece(rightPosition);
-                    if (pieceInRight != null && pieceInRight.getTeamColor() != pieceInSpot.getTeamColor()
-                            && pieceInRight.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        ChessPosition enPassantEndPosition;
-                        if (pieceInRight.getTeamColor() == TeamColor.WHITE) {
-                            enPassantEndPosition = new ChessPosition(endPosition.getRow()+1,
-                                    endPosition.getColumn());
-                        } else {
-                            enPassantEndPosition = new ChessPosition(endPosition.getRow()-1,
-                                    endPosition.getColumn());
-                        }
-                        ChessMove enPassantMove = new ChessMove(rightPosition, enPassantEndPosition, null);
-                        possibleEnPassant.add(enPassantMove);
-                    }
-                }
+                pawnMovedEnPassantCheck(move, pieceInSpot);
             }
         }
 
@@ -330,6 +299,43 @@ public class ChessGame {
             teamTurn = TeamColor.WHITE;
         }
 
+    }
+
+    private void pawnMovedEnPassantCheck(ChessMove move, ChessPiece pieceInSpot) {
+        ChessPosition endPosition = move.getEndPosition();
+        if (endPosition.getColumn() > 1) {
+            ChessPosition leftPosition = new ChessPosition(endPosition.getRow(), endPosition.getColumn()-1);
+            ChessPiece pieceInLeft = gameBoard.getPiece(leftPosition);
+            if (pieceInLeft != null && pieceInLeft.getTeamColor() != pieceInSpot.getTeamColor()
+                    && pieceInLeft.getPieceType() == ChessPiece.PieceType.PAWN) {
+                ChessPosition enPassantEndPosition;
+                if (pieceInLeft.getTeamColor() == TeamColor.WHITE) {
+                    enPassantEndPosition = new ChessPosition(endPosition.getRow()+1, endPosition.getColumn());
+                } else {
+                    enPassantEndPosition = new ChessPosition(endPosition.getRow()-1, endPosition.getColumn());
+                }
+                ChessMove enPassantMove = new ChessMove(leftPosition, enPassantEndPosition, null);
+                possibleEnPassant.add(enPassantMove);
+            }
+        }
+        if (endPosition.getColumn() < 8) {
+            ChessPosition rightPosition = new ChessPosition(endPosition.getRow(),
+                    endPosition.getColumn()+1);
+            ChessPiece pieceInRight = gameBoard.getPiece(rightPosition);
+            if (pieceInRight != null && pieceInRight.getTeamColor() != pieceInSpot.getTeamColor()
+                    && pieceInRight.getPieceType() == ChessPiece.PieceType.PAWN) {
+                ChessPosition enPassantEndPosition;
+                if (pieceInRight.getTeamColor() == TeamColor.WHITE) {
+                    enPassantEndPosition = new ChessPosition(endPosition.getRow()+1,
+                            endPosition.getColumn());
+                } else {
+                    enPassantEndPosition = new ChessPosition(endPosition.getRow()-1,
+                            endPosition.getColumn());
+                }
+                ChessMove enPassantMove = new ChessMove(rightPosition, enPassantEndPosition, null);
+                possibleEnPassant.add(enPassantMove);
+            }
+        }
     }
 
     /**
