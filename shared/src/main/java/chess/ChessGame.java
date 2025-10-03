@@ -1,6 +1,9 @@
 package chess;
 
+import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -70,8 +73,32 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+    public boolean isInCheck(TeamColor teamColor) { 
+        ChessPosition myKingPosition = null;
+        Collection<ChessMove> enemyMoves = new ArrayList<>();
+        for (int checkingRow = 8; checkingRow > 0; checkingRow--) {
+            for (int checkingCol = 1; checkingCol < 9; checkingCol++) {
+                ChessPosition checkingPosition = new ChessPosition(checkingRow, checkingCol);
+                ChessPiece pieceInSpot = gameBoard.getPiece(checkingPosition);
+                if (pieceInSpot == null) {
+                    assert true;
+                } else if (pieceInSpot.getTeamColor() != teamColor) {
+                    Collection<ChessMove> pieceInSpotMoves = pieceInSpot.pieceMoves(gameBoard, checkingPosition);
+                    enemyMoves.addAll(pieceInSpotMoves);
+                } else if (pieceInSpot.getTeamColor() == teamColor
+                        && pieceInSpot.getPieceType() == ChessPiece.PieceType.KING) {
+                    myKingPosition = checkingPosition;
+                }
+            }
+        }
+
+        for (ChessMove move : enemyMoves) {
+            if (move.getEndPosition().equals(myKingPosition)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**
