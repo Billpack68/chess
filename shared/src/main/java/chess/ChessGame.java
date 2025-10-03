@@ -122,6 +122,11 @@ public class ChessGame {
             throw new InvalidMoveException("No piece there");
         }
 
+        Collection<ChessMove> validMoves = validMoves(startPosition);
+        if (!validMoves.contains(move)) {
+            throw new InvalidMoveException("You can't do that!");
+        }
+
         ChessPiece.PieceType newPieceType = move.getPromotionPiece();
         ChessGame.TeamColor teamColor = pieceInSpot.getTeamColor();
         if (newPieceType == null) {
