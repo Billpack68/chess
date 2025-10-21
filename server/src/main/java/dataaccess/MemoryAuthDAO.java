@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class MemoryAuthDAO {
-    private Set<AuthData> authData = new HashSet<>();
+    private final Set<AuthData> authData;
 
     public MemoryAuthDAO() {
         this.authData = new HashSet<>();
@@ -26,7 +26,7 @@ public class MemoryAuthDAO {
         }
     }
 
-    public void deleteAuthTokens() {
+    public void deleteAuthData() {
         authData.clear();
     }
 

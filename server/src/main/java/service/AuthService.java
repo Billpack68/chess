@@ -22,8 +22,8 @@ public class AuthService {
         return authData;
     }
 
-    public void deleteAuthTokens() {
-        authDAO.deleteAuthTokens();
+    public void deleteAuthData() {
+        authDAO.deleteAuthData();
     }
 
     public static String generateToken() {

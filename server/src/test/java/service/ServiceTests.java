@@ -1,32 +1,39 @@
 package service;
-import dataaccess.MemoryAuthDAO;
-import model.AuthData;
+import dataaccess.*;
+import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
     private MemoryAuthDAO authDAO;
+    private MemoryUserDAO userDAO;
     private AuthService authService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
         authDAO = new MemoryAuthDAO();
         authService = new AuthService(authDAO);
+        userDAO = new MemoryUserDAO();
+        userService = new UserService(userDAO);
     }
 
     @Test
-    void testClearAuthTokens() {
-        // Arrange: Add a couple tokens
-        authService.createAuth(new AuthData("token1", "user1"));
+    void testClearDB() {
+        AuthData dummyAuth = new AuthData("token1", "user1");
+        UserData dummyUser = new UserData("username", "password", "email");
 
-        assertFalse(authService.getAuth(new AuthData("token1", "user1")) == null);
+        authService.createAuth(dummyAuth);
+        userService.createUser(dummyUser);
 
-        // Act: Call the service to clear tokens
-        authService.deleteAuthTokens();
+        assertNotNull(authService.getAuth(dummyAuth));
+        assertNotNull(userService.getUser(dummyUser));
 
-        // Assert: Check that DAO's tokens are cleared
-        assertTrue(authService.getAuth(new AuthData("token1", "user1")) == null,
-                "DAO should be empty after clearAuthTokens() is called");
+        authService.deleteAuthData();
+        userService.deleteUserData();
+
+        assertNull(authService.getAuth(dummyAuth));
+        assertNull(userService.getUser(dummyUser));
     }
 }
