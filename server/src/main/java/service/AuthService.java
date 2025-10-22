@@ -13,8 +13,12 @@ public class AuthService {
         this.authDAO = authDAO;
     }
 
-    public AuthData getAuth(AuthData authData) {
-        return authDAO.findAuthData(authData);
+    public AuthData getAuth(String authToken) throws InvalidAuthTokenException {
+        AuthData returnData = authDAO.findAuthDataByAuthToken(authToken);
+        if (returnData == null) {
+            throw new InvalidAuthTokenException("Unauthorized!");
+        }
+        return returnData;
     }
 
     public AuthData addAuth(AuthData authData) {
@@ -31,6 +35,10 @@ public class AuthService {
 
     public void deleteAuthData() {
         authDAO.deleteAuthData();
+    }
+
+    public void deleteAuthToken(String authToken) {
+        authDAO.deleteAuthDataByAuthToken(authToken);
     }
 
     public static String generateToken() {

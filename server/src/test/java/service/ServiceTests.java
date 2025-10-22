@@ -77,10 +77,34 @@ public class ServiceTests {
     }
 
     @Test
-    void testLoginMissingPassword() throws MissingDataException, AlreadyTakenException {
+    void testLoginMissingPassword() throws AlreadyTakenException {
         LoginRequest badRequest = new LoginRequest("username", null);
         assertThrows(MissingDataException.class, () -> {
             service.login(badRequest);
+        });
+    }
+
+    @Test
+    void testLogoutPositive() throws InvalidAuthTokenException, MissingDataException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        LoginResult result = service.login(dummyLogin);
+        String authToken = result.authToken();
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        LogoutResult logoutResult = service.logout(logoutRequest);
+        assertNotNull(logoutRequest);
+    }
+
+    @Test
+    void testLogoutInvalidAuthToken() throws MissingDataException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        service.login(dummyLogin);
+        LogoutRequest logoutRequest = new LogoutRequest("fakeToken");
+        assertThrows(InvalidAuthTokenException.class, () -> {
+            service.logout(logoutRequest);
         });
     }
 

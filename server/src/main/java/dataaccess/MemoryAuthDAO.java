@@ -18,6 +18,27 @@ public class MemoryAuthDAO {
         return newAuthData;
     }
 
+    public AuthData findAuthDataByAuthToken(String authToken) {
+        for (AuthData data : authData) {
+            if (Objects.equals(data.authToken(), authToken)) {
+                return data;
+            }
+        }
+        return null;
+    }
+
+    public void deleteAuthDataByAuthToken(String authToken) {
+        String username = null;
+        for (AuthData data : authData) {
+            if (Objects.equals(data.authToken(), authToken)) {
+                username = data.username();
+            }
+        }
+        if (username != null) {
+            authData.remove(new AuthData(authToken, username));
+        }
+    }
+
     public AuthData findAuthData(AuthData searchData) {
         if (authData.contains(searchData)) {
             return searchData;

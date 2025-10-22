@@ -38,6 +38,13 @@ public class Service {
         return new LoginResult(userAuth.username(), userAuth.authToken());
     }
 
+    public LogoutResult logout(LogoutRequest logoutRequest) throws InvalidAuthTokenException {
+        String authToken = logoutRequest.authToken();
+        AuthData authData = authService.getAuth(authToken);
+        authService.deleteAuthToken(authData.authToken());
+        return new LogoutResult();
+    }
+
     public void clearDB() {
         userService.deleteUserData();
         authService.deleteAuthData();
