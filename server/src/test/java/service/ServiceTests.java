@@ -5,6 +5,7 @@ import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -150,41 +151,61 @@ public class ServiceTests {
         });
     }
 
-    //    private AuthService authService;
-//    private UserService userService;
-//    private GameService gameService;
-//
-//    @BeforeEach
-//    void setUp() {
-//        MemoryAuthDAO authDAO = new MemoryAuthDAO();
-//        authService = new AuthService(authDAO);
-//        MemoryUserDAO userDAO = new MemoryUserDAO();
-//        userService = new UserService(userDAO);
-//        MemoryGameDAO gameDAO = new MemoryGameDAO();
-//        gameService = new GameService(gameDAO);
-//    }
-//
-//    @Test
-//    void testClearDB() {
-//        AuthData dummyAuth = new AuthData("token1", "user1");
-//        UserData dummyUser = new UserData("username", "password", "email");
-//        GameData dummyGame = new GameData(1, "white", "black",
-//                "name", new ChessGame());
-//
-//        authService.addAuth(dummyAuth);
-//        userService.addUser(dummyUser);
-//        gameService.createGame(dummyGame);
-//
-//        assertNotNull(authService.getAuth(dummyAuth));
-//        assertNotNull(userService.getUser(dummyUser));
-//        assertNotNull(gameService.getGame(dummyGame));
-//
-//        authService.deleteAuthData();
-//        userService.deleteUserData();
-//        gameService.deleteGameData();
-//
-//        assertNull(authService.getAuth(dummyAuth));
-//        assertNull(userService.getUser(dummyUser));
-//        assertNull(gameService.getGame(dummyGame));
-//    }
+    @Test
+    void testListGamesPositive() throws InvalidAuthTokenException, MissingDataException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        String authToken = service.login(dummyLogin).authToken();
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        service.createGame(dummyCreate);
+        service.createGame(dummyCreate);
+        service.createGame(dummyCreate);
+        ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+        ListGamesResult listGamesResult = service.listGames(listGamesRequest);
+        Collection<GameData> gameData = listGamesResult.gameData();
+        assert(gameData.size() == 3);
+        GameData game1 = new GameData(1, null, null,
+                "GAMENAME", new ChessGame());
+        GameData game2 = new GameData(2, null, null,
+                "GAMENAME", new ChessGame());
+        GameData game4 = new GameData(4, null, null,
+                "GAMENAME", new ChessGame());
+        GameData game0 = new GameData(0, null, null,
+                "GAMENAME", new ChessGame());
+        assert(gameData.contains(game1));
+        assert(gameData.contains(game2));
+        assert(!gameData.contains(game4));
+        assert(!gameData.contains(game0));
+    }
+
+    @Test
+    void testListGamesInvalidAuthToken() throws InvalidAuthTokenException, MissingDataException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        service.login(dummyLogin);
+        String authToken = "fakeToken";
+        ListGamesRequest dummyList = new ListGamesRequest(authToken);
+        assertThrows(InvalidAuthTokenException.class, () -> {
+            service.listGames(dummyList);
+        });
+    }
+
+    @Test
+    void testClearDB() throws MissingDataException, InvalidAuthTokenException {
+        // Copying the code from the test for list games in order to populate my DB
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        String authToken = service.login(dummyLogin).authToken();
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        service.createGame(dummyCreate);
+        service.createGame(dummyCreate);
+        service.createGame(dummyCreate);
+
+        // Now the real test
+        ClearDatabaseResult clearResult = service.clearDB(new ClearDatabaseRequest());
+        assertNotNull(clearResult);
+    }
 }

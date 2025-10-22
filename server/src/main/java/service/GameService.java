@@ -4,6 +4,8 @@ import chess.ChessGame;
 import dataaccess.MemoryGameDAO;
 import model.GameData;
 
+import java.util.Collection;
+
 public class GameService {
     private final MemoryGameDAO gameDAO;
 
@@ -14,6 +16,8 @@ public class GameService {
     public GameData getGame(GameData gameData) {
         return gameDAO.findGameData(gameData);
     }
+
+    public Collection<GameData> getGames() { return gameDAO.getGames(); }
 
     public int createGame(String gameName) {
         int newGameID = gameDAO.getNextGameID();

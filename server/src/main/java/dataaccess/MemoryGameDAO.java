@@ -2,12 +2,13 @@ package dataaccess;
 
 import model.GameData;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class MemoryGameDAO {
-    private final Set<GameData> gameData;
+    private final Collection<GameData> gameData;
 
     public MemoryGameDAO() {
         this.gameData = new HashSet<>();
@@ -28,6 +29,8 @@ public class MemoryGameDAO {
             return null;
         }
     }
+
+    public Collection<GameData> getGames() { return gameData; }
 
     public void deleteGameData() {
         gameData.clear();
