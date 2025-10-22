@@ -2,6 +2,8 @@ package service;
 
 import model.*;
 
+import java.util.Objects;
+
 public class Service {
     private final AuthService authService;
     private final GameService gameService;
@@ -62,6 +64,27 @@ public class Service {
         AuthData authData = authService.getAuth(authToken);
         int gameID = gameService.createGame(gameName);
         return new CreateGameResult(gameID);
+    }
+
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws MissingDataException,
+            InvalidAuthTokenException, GameNotFoundException, ColorAlreadyTakenException {
+        String authToken = joinGameRequest.authToken();
+        String playerColor = joinGameRequest.playerColor();
+        Integer gameID = joinGameRequest.gameID();
+        if (authToken == null || gameID == null ||
+                (!Objects.equals(playerColor, "BLACK") && !Objects.equals(playerColor, "WHITE"))) {
+            throw new MissingDataException("Join Game requires authToken, player color, and ID");
+        }
+
+        AuthData authData = authService.getAuth(authToken);
+        GameData gameData = gameService.findGameDataByID(gameID);
+        if ((playerColor.equals("BLACK") && gameData.blackUsername() != null)
+                || (playerColor.equals("WHITE") && gameData.whiteUsername() != null)) {
+            throw new ColorAlreadyTakenException("That color is already taken");
+        }
+
+        gameService.joinGame(gameData, playerColor, authData.username());
+        return new JoinGameResult();
     }
 
     public ClearDatabaseResult clearDB(ClearDatabaseRequest request) {

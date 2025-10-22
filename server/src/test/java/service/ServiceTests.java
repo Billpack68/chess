@@ -193,6 +193,65 @@ public class ServiceTests {
     }
 
     @Test
+    void testJoinGamePositive() throws MissingDataException, InvalidAuthTokenException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        String authToken = service.login(dummyLogin).authToken();
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        service.createGame(dummyCreate);
+        JoinGameRequest dummyJoin = new JoinGameRequest(authToken, "WHITE", 1);
+        JoinGameResult joinResult = service.joinGame(dummyJoin);
+        assertNotNull(joinResult);
+        ListGamesResult listResult = service.listGames(new ListGamesRequest(authToken));
+        GameData game1 = new GameData(1, "username", null,
+                "GAMENAME", new ChessGame());
+        assert(listResult.gameData().contains(game1));
+    }
+
+    @Test
+    void testJoinGameMissingData() throws MissingDataException, InvalidAuthTokenException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        String authToken = service.login(dummyLogin).authToken();
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        service.createGame(dummyCreate);
+        JoinGameRequest dummyJoin = new JoinGameRequest(authToken, "WHITE", null);
+        assertThrows(MissingDataException.class, () -> {
+            service.joinGame(dummyJoin);
+        });
+    }
+
+    @Test
+    void testJoinGameInvalidGameID() throws MissingDataException, InvalidAuthTokenException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        String authToken = service.login(dummyLogin).authToken();
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        service.createGame(dummyCreate);
+        JoinGameRequest dummyJoin = new JoinGameRequest(authToken, "WHITE", 2);
+        assertThrows(GameNotFoundException.class, () -> {
+            service.joinGame(dummyJoin);
+        });
+    }
+    @Test
+    void testJoinGameColorAlreadyTaken() throws MissingDataException, InvalidAuthTokenException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        String authToken = service.login(dummyLogin).authToken();
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        service.createGame(dummyCreate);
+        JoinGameRequest dummyJoin = new JoinGameRequest(authToken, "WHITE", 1);
+        service.joinGame(dummyJoin);
+        assertThrows(ColorAlreadyTakenException.class, () -> {
+            service.joinGame(dummyJoin);
+        });
+    }
+
+    @Test
     void testClearDB() throws MissingDataException, InvalidAuthTokenException {
         // Copying the code from the test for list games in order to populate my DB
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");

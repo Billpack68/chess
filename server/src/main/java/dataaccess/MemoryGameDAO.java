@@ -30,6 +30,19 @@ public class MemoryGameDAO {
         }
     }
 
+    public void removeGameData(GameData searchData) {
+        gameData.remove(searchData);
+    }
+
+    public GameData findGameDataByID(int gameID) {
+        for (GameData game : gameData) {
+            if (game.gameID() == gameID) {
+                return game;
+            }
+        }
+        return null;
+    }
+
     public Collection<GameData> getGames() { return gameData; }
 
     public void deleteGameData() {
