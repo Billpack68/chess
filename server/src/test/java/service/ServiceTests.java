@@ -30,6 +30,23 @@ public class ServiceTests {
         assert(Objects.equals(result.username(), "username"));
     }
 
+    @Test
+    void testRegisterUsernameTaken() throws MissingDataException, AlreadyTakenException {
+        RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
+        service.register(registerRequest);
+        assertThrows(AlreadyTakenException.class, () -> {
+            service.register(registerRequest);
+        });
+    }
+
+    @Test
+    void testRegisterMissingEmail() throws MissingDataException, AlreadyTakenException {
+        RegisterRequest badRequest = new RegisterRequest("username", "password", null);
+        assertThrows(MissingDataException.class, () -> {
+            service.register(badRequest);
+        });
+    }
+
     //    private AuthService authService;
 //    private UserService userService;
 //    private GameService gameService;
