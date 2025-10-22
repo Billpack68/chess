@@ -21,15 +21,21 @@ public class Service {
         if (username == null || password == null || email == null) {
             throw new MissingDataException("Register requires username, password, and email");
         }
-        UserData existingUser = userService.getUserByUsername(username);
-        if (existingUser != null) {
-            throw new AlreadyTakenException("Username already exists");
-        }
-        UserData newUser = new UserData(username, password, email);
-        userService.addUser(newUser);
+        UserData userData = new UserData(username, password, email);
+        userService.addUser(userData);
         AuthData userAuth = authService.createAuth(username);
-        authService.addAuth(userAuth);
         return new RegisterResult(userAuth.username(), userAuth.authToken());
+    }
+
+    public LoginResult login(LoginRequest loginRequest) throws MissingDataException, InvalidCredentialsException {
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+        if (username == null || password == null) {
+            throw new MissingDataException("Login requires username and password");
+        }
+        userService.loginUser(username, password);
+        AuthData userAuth = authService.createAuth(username);
+        return new LoginResult(userAuth.username(), userAuth.authToken());
     }
 
     public void clearDB() {

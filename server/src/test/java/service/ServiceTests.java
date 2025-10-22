@@ -47,6 +47,43 @@ public class ServiceTests {
         });
     }
 
+    @Test
+    void testLoginPositive() throws MissingDataException, InvalidCredentialsException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        LoginResult result = service.login(dummyLogin);
+        assert(Objects.equals(result.username(), "username"));
+    }
+
+    @Test
+    void testLoginInvalidUsername() throws MissingDataException {
+        RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
+        service.register(registerRequest);
+        LoginRequest loginRequest = new LoginRequest("wrong", "password");
+        assertThrows(InvalidCredentialsException.class, () -> {
+            service.login(loginRequest);
+        });
+    }
+
+    @Test
+    void testLoginInvalidPassword() throws MissingDataException {
+        RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
+        service.register(registerRequest);
+        LoginRequest loginRequest = new LoginRequest("username", "wrong");
+        assertThrows(InvalidCredentialsException.class, () -> {
+            service.login(loginRequest);
+        });
+    }
+
+    @Test
+    void testLoginMissingPassword() throws MissingDataException, AlreadyTakenException {
+        LoginRequest badRequest = new LoginRequest("username", null);
+        assertThrows(MissingDataException.class, () -> {
+            service.login(badRequest);
+        });
+    }
+
     //    private AuthService authService;
 //    private UserService userService;
 //    private GameService gameService;

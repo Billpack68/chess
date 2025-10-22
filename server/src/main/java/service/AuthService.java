@@ -24,7 +24,9 @@ public class AuthService {
 
     public AuthData createAuth(String username) {
         String authToken = generateToken();
-        return new AuthData(authToken, username);
+        AuthData newAuthData = new AuthData(authToken, username);
+        authDAO.addAuthData(newAuthData);
+        return newAuthData;
     }
 
     public void deleteAuthData() {

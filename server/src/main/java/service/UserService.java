@@ -16,8 +16,20 @@ public class UserService {
         return userDAO.findUserData(userData);
     }
 
-    public void addUser(UserData userData) {
+    public void addUser(UserData userData) throws AlreadyTakenException {
+        String username = userData.username();
+        if (getUserByUsername(username) != null) {
+            throw new AlreadyTakenException("Username already exists");
+        }
+
         userDAO.addUserData(userData);
+    }
+
+    public void loginUser(String username, String password) throws InvalidCredentialsException {
+        UserData existingUser = getUserByUsername(username);
+        if (existingUser == null || !Objects.equals(existingUser.password(), password)) {
+            throw new InvalidCredentialsException("Invalid username/password");
+        }
     }
 
     public void deleteUserData() {
