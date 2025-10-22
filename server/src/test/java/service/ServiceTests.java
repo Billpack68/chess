@@ -28,8 +28,8 @@ public class ServiceTests {
         GameData dummyGame = new GameData(1, "white", "black",
                 "name", new ChessGame());
 
-        authService.createAuth(dummyAuth);
-        userService.createUser(dummyUser);
+        authService.addAuth(dummyAuth);
+        userService.addUser(dummyUser);
         gameService.createGame(dummyGame);
 
         assertNotNull(authService.getAuth(dummyAuth));

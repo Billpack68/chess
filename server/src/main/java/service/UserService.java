@@ -16,13 +16,23 @@ public class UserService {
         return userDAO.findUserData(userData);
     }
 
-    public UserData createUser(UserData userData) {
+    public void addUser(UserData userData) {
         userDAO.addUserData(userData);
-        return userData;
     }
 
     public void deleteUserData() {
         userDAO.deleteUserData();
+    }
+
+    public UserData getUserByUsername(String username) {
+        return userDAO.getUser(username);
+//        if (existingUser != null) {
+//            throw new AlreadyTakenException("Username already exists");
+//        }
+//        UserData newUser = new UserData(registerRequest.username(), registerRequest.password(),
+//                registerRequest.email());
+//        createUser(newUser);
+//        return true;
     }
 
     @Override

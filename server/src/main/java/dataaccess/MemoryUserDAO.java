@@ -30,7 +30,14 @@ public class MemoryUserDAO {
         userData.clear();
     }
 
-
+    public UserData getUser(String username) {
+        for (UserData data : userData) {
+            if (Objects.equals(data.username(), username)) {
+                return data;
+            }
+        }
+        return null;
+    }
 
     @Override
     public boolean equals(Object o) {
