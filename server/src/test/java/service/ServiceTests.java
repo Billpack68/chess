@@ -7,20 +7,17 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
-    private MemoryAuthDAO authDAO;
-    private MemoryUserDAO userDAO;
-    private MemoryGameDAO gameDAO;
     private AuthService authService;
     private UserService userService;
     private GameService gameService;
 
     @BeforeEach
     void setUp() {
-        authDAO = new MemoryAuthDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
         authService = new AuthService(authDAO);
-        userDAO = new MemoryUserDAO();
+        MemoryUserDAO userDAO = new MemoryUserDAO();
         userService = new UserService(userDAO);
-        gameDAO = new MemoryGameDAO();
+        MemoryGameDAO gameDAO = new MemoryGameDAO();
         gameService = new GameService(gameDAO);
     }
 
