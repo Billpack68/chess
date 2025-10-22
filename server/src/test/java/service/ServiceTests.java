@@ -108,6 +108,48 @@ public class ServiceTests {
         });
     }
 
+    @Test
+    void testCreateGamePositive() throws InvalidAuthTokenException, MissingDataException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        LoginResult result = service.login(dummyLogin);
+        String authToken = result.authToken();
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        CreateGameResult createResult1 = service.createGame(dummyCreate);
+        CreateGameResult createResult2 = service.createGame(dummyCreate);
+        CreateGameResult createResult3 = service.createGame(dummyCreate);
+        assert(createResult1.gameID() == 1);
+        assert(createResult2.gameID() == 2);
+        assert(createResult3.gameID() == 3);
+    }
+
+    @Test
+    void testCreateGameInvalidAuthToken() throws InvalidAuthTokenException, MissingDataException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        service.login(dummyLogin);
+        String authToken = "fakeToken";
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, "GAMENAME");
+        assertThrows(InvalidAuthTokenException.class, () -> {
+            service.createGame(dummyCreate);
+        });
+    }
+
+    @Test
+    void testCreateGameMissingData() throws InvalidAuthTokenException, MissingDataException {
+        RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
+        service.register(dummyRegister);
+        LoginRequest dummyLogin = new LoginRequest("username", "password");
+        service.login(dummyLogin);
+        String authToken = "fakeToken";
+        CreateGameRequest dummyCreate = new CreateGameRequest(authToken, null);
+        assertThrows(MissingDataException.class, () -> {
+            service.createGame(dummyCreate);
+        });
+    }
+
     //    private AuthService authService;
 //    private UserService userService;
 //    private GameService gameService;

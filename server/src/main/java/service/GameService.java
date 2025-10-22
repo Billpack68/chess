@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.MemoryGameDAO;
 import model.GameData;
 
@@ -14,9 +15,12 @@ public class GameService {
         return gameDAO.findGameData(gameData);
     }
 
-    public GameData createGame(GameData gameData) {
-        gameDAO.addGameData(gameData);
-        return gameData;
+    public int createGame(String gameName) {
+        int newGameID = gameDAO.getNextGameID();
+        ChessGame newChessGame = new ChessGame();
+        GameData newGame = new GameData(newGameID, null, null, gameName, newChessGame);
+        gameDAO.addGameData(newGame);
+        return newGameID;
     }
 
     public void deleteGameData() {

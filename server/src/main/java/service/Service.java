@@ -45,6 +45,25 @@ public class Service {
         return new LogoutResult();
     }
 
+//    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthTokenException {
+//        String authToken = listGamesRequest.authToken();
+//        AuthData authData = authService.getAuth(authToken);
+//
+//    }
+
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws
+            MissingDataException, InvalidAuthTokenException {
+        String authToken = createGameRequest.authToken();
+        String gameName = createGameRequest.gameName();
+        if (authToken == null || gameName == null) {
+            throw new MissingDataException("Create Game requires authToken and gameName");
+        }
+
+        AuthData authData = authService.getAuth(authToken);
+        int gameID = gameService.createGame(gameName);
+        return new CreateGameResult(gameID);
+    }
+
     public void clearDB() {
         userService.deleteUserData();
         authService.deleteAuthData();

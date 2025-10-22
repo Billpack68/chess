@@ -13,9 +13,12 @@ public class MemoryGameDAO {
         this.gameData = new HashSet<>();
     }
 
-    public GameData addGameData(GameData newGameData) {
+    public void addGameData(GameData newGameData) {
         gameData.add(newGameData);
-        return newGameData;
+    }
+
+    public int getNextGameID() {
+        return gameData.size() + 1;
     }
 
     public GameData findGameData(GameData searchData) {
