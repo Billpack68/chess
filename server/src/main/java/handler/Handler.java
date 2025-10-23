@@ -9,7 +9,9 @@ import service.*;
 
 import io.javalin.http.Context;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class Handler {
@@ -77,12 +79,18 @@ public class Handler {
         try {
             ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
             ListGamesResult result = service.listGames(request);
-            ctx.result(serializer.toJson(result));
+            Collection<ListGamesData> formattedData = new HashSet<>();
+            for (GameData data : result.gameData()) {
+                formattedData.add(new ListGamesData(data.gameID(), data.gameName(),
+                        data.whiteUsername(), data.blackUsername()));
+            }
+            Map<String, Object> response = Map.of("games", formattedData);
+
+            ctx.result(serializer.toJson(response));
             ctx.status(200);
         } catch (InvalidAuthTokenException e) {
             errorHandler(ctx, 401, e.getMessage());
         }
-
     }
 
     public void createGame(Context ctx) {
@@ -103,7 +111,7 @@ public class Handler {
         try {
             CreateJoinGameRequest body = serializer.fromJson(ctx.body(), CreateJoinGameRequest.class);
             JoinGameRequest request = new JoinGameRequest(ctx.header("authorization"),
-                    body.playerColor(), body.gameID());
+                    body.getPlayerColor(), body.getGameID());
             JoinGameResult result = service.joinGame(request);
             ctx.result(serializer.toJson(result));
             ctx.status(200);
