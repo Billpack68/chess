@@ -73,7 +73,7 @@ public class Handler {
 
     }
 
-    public void listGames(Context ctx) throws InvalidAuthTokenException {
+    public void listGames(Context ctx) {
         try {
             ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
             ListGamesResult result = service.listGames(request);
@@ -85,11 +85,19 @@ public class Handler {
 
     }
 
-    public void createGame(Context ctx) throws MissingDataException, InvalidAuthTokenException {
-        CreateGameRequest request = serializer.fromJson(ctx.body(), CreateGameRequest.class);
-        CreateGameResult result = service.createGame(request);
-        ctx.result(serializer.toJson(result));
-        ctx.status(200);
+    public void createGame(Context ctx) {
+        try {
+            CreateGameRequest request = new CreateGameRequest(ctx.header("authorization"),
+                    serializer.fromJson(ctx.body(), CreateGameName.class).gameName());
+            CreateGameResult result = service.createGame(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+        } catch (MissingDataException e) {
+            errorHandler(ctx, 400, e.getMessage());
+        } catch (InvalidAuthTokenException e) {
+            errorHandler(ctx, 401, e.getMessage());
+        }
+
     }
 
     public void joinGame(Context ctx) throws MissingDataException, InvalidAuthTokenException,
