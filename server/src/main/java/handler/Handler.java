@@ -9,6 +9,9 @@ import service.*;
 
 import io.javalin.http.Context;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Handler {
 
     private final Service service;
@@ -25,11 +28,22 @@ public class Handler {
         this.serializer = new Gson();
     }
 
-    public void registerUser(Context ctx) throws MissingDataException {
-        RegisterRequest request = serializer.fromJson(ctx.body(), RegisterRequest.class);
-        RegisterResult result = service.register(request);
-        ctx.result(serializer.toJson(result));
-        ctx.status(200);
+    public void errorHandler(Context ctx, int status, String message) {
+        Map<String, String> error = new HashMap<>();
+        error.put("message", message);
+        ctx.result(serializer.toJson(error));
+        ctx.status(status);
+    }
+
+    public void registerUser(Context ctx) {
+        try {
+            RegisterRequest request = serializer.fromJson(ctx.body(), RegisterRequest.class);
+            RegisterResult result = service.register(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+        } catch (MissingDataException e) {
+            errorHandler(ctx, 400, e.getMessage());
+        }
     }
 
     public void loginUser(Context ctx) throws MissingDataException {

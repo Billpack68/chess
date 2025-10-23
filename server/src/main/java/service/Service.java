@@ -21,7 +21,7 @@ public class Service {
         String password = registerRequest.password();
         String email = registerRequest.email();
         if (username == null || password == null || email == null) {
-            throw new MissingDataException("Register requires username, password, and email");
+            throw new MissingDataException("Error: bad request");
         }
         UserData userData = new UserData(username, password, email);
         userService.addUser(userData);
@@ -33,7 +33,7 @@ public class Service {
         String username = loginRequest.username();
         String password = loginRequest.password();
         if (username == null || password == null) {
-            throw new MissingDataException("Login requires username and password");
+            throw new MissingDataException("Error: bad request");
         }
         userService.loginUser(username, password);
         AuthData userAuth = authService.createAuth(username);
@@ -58,7 +58,7 @@ public class Service {
         String authToken = createGameRequest.authToken();
         String gameName = createGameRequest.gameName();
         if (authToken == null || gameName == null) {
-            throw new MissingDataException("Create Game requires authToken and gameName");
+            throw new MissingDataException("Error: bad request");
         }
 
         AuthData authData = authService.getAuth(authToken);
@@ -73,7 +73,7 @@ public class Service {
         Integer gameID = joinGameRequest.gameID();
         if (authToken == null || gameID == null ||
                 (!Objects.equals(playerColor, "BLACK") && !Objects.equals(playerColor, "WHITE"))) {
-            throw new MissingDataException("Join Game requires authToken, player color, and ID");
+            throw new MissingDataException("Error: bad request");
         }
 
         AuthData authData = authService.getAuth(authToken);
