@@ -62,10 +62,15 @@ public class Handler {
 
     }
 
-    public void logoutUser(Context ctx) throws InvalidAuthTokenException {
-        LogoutRequest request = serializer.fromJson(ctx.body(), LogoutRequest.class);
-        LogoutResult result = service.logout(request);
-        ctx.status(200);
+    public void logoutUser(Context ctx) {
+        try {
+            LogoutRequest request = new LogoutRequest(ctx.header("authorization"));
+            LogoutResult result = service.logout(request);
+            ctx.status(200);
+        } catch (InvalidAuthTokenException e) {
+            errorHandler(ctx, 401, e.getMessage());
+        }
+
     }
 
     public void listGames(Context ctx) throws InvalidAuthTokenException {
