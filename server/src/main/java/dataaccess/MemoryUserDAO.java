@@ -18,14 +18,6 @@ public class MemoryUserDAO {
         return newUserData;
     }
 
-    public UserData findUserData(UserData searchData) {
-        if (userData.contains(searchData)) {
-            return searchData;
-        } else {
-            return null;
-        }
-    }
-
     public void deleteUserData() {
         userData.clear();
     }

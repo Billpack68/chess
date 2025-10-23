@@ -22,14 +22,6 @@ public class MemoryGameDAO {
         return gameData.size() + 1;
     }
 
-    public GameData findGameData(GameData searchData) {
-        if (gameData.contains(searchData)) {
-            return searchData;
-        } else {
-            return null;
-        }
-    }
-
     public void removeGameData(GameData searchData) {
         gameData.remove(searchData);
     }
