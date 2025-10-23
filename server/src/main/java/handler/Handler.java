@@ -43,6 +43,8 @@ public class Handler {
             ctx.status(200);
         } catch (MissingDataException e) {
             errorHandler(ctx, 400, e.getMessage());
+        } catch (AlreadyTakenException e) {
+            errorHandler(ctx, 403, e.getMessage());
         }
     }
 

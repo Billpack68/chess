@@ -19,7 +19,7 @@ public class UserService {
     public void addUser(UserData userData) throws AlreadyTakenException {
         String username = userData.username();
         if (getUserByUsername(username) != null) {
-            throw new AlreadyTakenException("Username already exists");
+            throw new AlreadyTakenException("Error: already taken");
         }
 
         userDAO.addUserData(userData);
