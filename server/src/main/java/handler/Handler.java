@@ -49,10 +49,17 @@ public class Handler {
     }
 
     public void loginUser(Context ctx) throws MissingDataException {
-        LoginRequest request = serializer.fromJson(ctx.body(), LoginRequest.class);
-        LoginResult result = service.login(request);
-        ctx.result(serializer.toJson(result));
-        ctx.status(200);
+        try {
+            LoginRequest request = serializer.fromJson(ctx.body(), LoginRequest.class);
+            LoginResult result = service.login(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+        } catch (MissingDataException e) {
+            errorHandler(ctx, 400, e.getMessage());
+        } catch (InvalidCredentialsException e) {
+            errorHandler(ctx, 401, e.getMessage());
+        }
+
     }
 
     public void logoutUser(Context ctx) throws InvalidAuthTokenException {

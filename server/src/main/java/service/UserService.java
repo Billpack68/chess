@@ -28,7 +28,7 @@ public class UserService {
     public void loginUser(String username, String password) throws InvalidCredentialsException {
         UserData existingUser = getUserByUsername(username);
         if (existingUser == null || !Objects.equals(existingUser.password(), password)) {
-            throw new InvalidCredentialsException("Invalid username/password");
+            throw new InvalidCredentialsException("Error: unauthorized");
         }
     }
 
@@ -38,13 +38,6 @@ public class UserService {
 
     public UserData getUserByUsername(String username) {
         return userDAO.getUser(username);
-//        if (existingUser != null) {
-//            throw new AlreadyTakenException("Username already exists");
-//        }
-//        UserData newUser = new UserData(registerRequest.username(), registerRequest.password(),
-//                registerRequest.email());
-//        createUser(newUser);
-//        return true;
     }
 
     @Override
