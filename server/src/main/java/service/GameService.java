@@ -21,7 +21,7 @@ public class GameService {
     public GameData findGameDataByID(int gameID) {
         GameData gameData = gameDAO.findGameDataByID(gameID);
         if (gameData == null) {
-            throw new GameNotFoundException("There is no Game with that ID");
+            throw new GameNotFoundException("Error: bad request");
         }
         return gameData;
     }

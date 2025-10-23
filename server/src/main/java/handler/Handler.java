@@ -97,15 +97,23 @@ public class Handler {
         } catch (InvalidAuthTokenException e) {
             errorHandler(ctx, 401, e.getMessage());
         }
-
     }
 
-    public void joinGame(Context ctx) throws MissingDataException, InvalidAuthTokenException,
-            GameNotFoundException, ColorAlreadyTakenException {
-        JoinGameRequest request = serializer.fromJson(ctx.body(), JoinGameRequest.class);
-        JoinGameResult result = service.joinGame(request);
-        ctx.result(serializer.toJson(result));
-        ctx.status(200);
+    public void joinGame(Context ctx) {
+        try {
+            CreateJoinGameRequest body = serializer.fromJson(ctx.body(), CreateJoinGameRequest.class);
+            JoinGameRequest request = new JoinGameRequest(ctx.header("authorization"),
+                    body.playerColor(), body.gameID());
+            JoinGameResult result = service.joinGame(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+        } catch (MissingDataException | GameNotFoundException e) {
+            errorHandler(ctx, 400, e.getMessage());
+        } catch (InvalidAuthTokenException e) {
+            errorHandler(ctx, 401, e.getMessage());
+        } catch (ColorAlreadyTakenException e) {
+            errorHandler(ctx, 403, e.getMessage());
+        }
     }
 
     public void clearDB(Context ctx) {

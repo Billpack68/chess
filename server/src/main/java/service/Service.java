@@ -80,7 +80,7 @@ public class Service {
         GameData gameData = gameService.findGameDataByID(gameID);
         if ((playerColor.equals("BLACK") && gameData.blackUsername() != null)
                 || (playerColor.equals("WHITE") && gameData.whiteUsername() != null)) {
-            throw new ColorAlreadyTakenException("That color is already taken");
+            throw new ColorAlreadyTakenException("Error: already taken");
         }
 
         gameService.joinGame(gameData, playerColor, authData.username());
