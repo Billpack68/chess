@@ -74,10 +74,15 @@ public class Handler {
     }
 
     public void listGames(Context ctx) throws InvalidAuthTokenException {
-        ListGamesRequest request = serializer.fromJson(ctx.body(), ListGamesRequest.class);
-        ListGamesResult result = service.listGames(request);
-        ctx.result(serializer.toJson(result));
-        ctx.status(200);
+        try {
+            ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
+            ListGamesResult result = service.listGames(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+        } catch (InvalidAuthTokenException e) {
+            errorHandler(ctx, 401, e.getMessage());
+        }
+
     }
 
     public void createGame(Context ctx) throws MissingDataException, InvalidAuthTokenException {
