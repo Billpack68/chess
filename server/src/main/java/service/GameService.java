@@ -14,10 +14,6 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public GameData getGame(GameData gameData) {
-        return gameDAO.findGameData(gameData);
-    }
-
     public GameData findGameDataByID(int gameID) {
         GameData gameData = gameDAO.findGameDataByID(gameID);
         if (gameData == null) {

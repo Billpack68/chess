@@ -12,10 +12,6 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public UserData getUser(UserData userData) {
-        return userDAO.findUserData(userData);
-    }
-
     public void addUser(UserData userData) throws AlreadyTakenException {
         String username = userData.username();
         if (getUserByUsername(username) != null) {

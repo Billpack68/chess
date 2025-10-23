@@ -39,14 +39,6 @@ public class MemoryAuthDAO {
         }
     }
 
-    public AuthData findAuthData(AuthData searchData) {
-        if (authData.contains(searchData)) {
-            return searchData;
-        } else {
-            return null;
-        }
-    }
-
     public void deleteAuthData() {
         authData.clear();
     }

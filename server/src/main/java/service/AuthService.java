@@ -21,11 +21,6 @@ public class AuthService {
         return returnData;
     }
 
-    public AuthData addAuth(AuthData authData) {
-        authDAO.addAuthData(authData);
-        return authData;
-    }
-
     public AuthData createAuth(String username) {
         String authToken = generateToken();
         AuthData newAuthData = new AuthData(authToken, username);
