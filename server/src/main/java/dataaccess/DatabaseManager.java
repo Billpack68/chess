@@ -24,7 +24,7 @@ public class DatabaseManager {
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
+        } catch (java.sql.SQLException ex) {
             throw new DataAccessException("failed to create database", ex);
         }
     }
@@ -47,7 +47,7 @@ public class DatabaseManager {
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
             conn.setCatalog(databaseName);
             return conn;
-        } catch (SQLException ex) {
+        } catch (java.sql.SQLException ex) {
             throw new DataAccessException("failed to get connection", ex);
         }
     }
