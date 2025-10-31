@@ -1,14 +1,14 @@
 package service;
 
-import dataaccess.MemoryUserDAO;
+import dataaccess.UserDAO;
 import model.UserData;
 
 import java.util.Objects;
 
 public class UserService {
-    private final MemoryUserDAO userDAO;
+    private final UserDAO userDAO;
 
-    public UserService(MemoryUserDAO userDAO) {
+    public UserService(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
 

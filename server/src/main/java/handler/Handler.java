@@ -1,9 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.*;
 import service.*;
 
@@ -20,12 +18,14 @@ public class Handler {
     private Gson serializer;
 
     public Handler() {
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        this(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
+    }
+
+    public Handler(AuthDAO authDAO, UserDAO userDAO, GameDAO gameDAO) {
         AuthService authService = new AuthService(authDAO);
-        MemoryUserDAO userDAO = new MemoryUserDAO();
         UserService userService = new UserService(userDAO);
-        MemoryGameDAO gameDAO = new MemoryGameDAO();
         GameService gameService = new GameService(gameDAO);
+
         this.service = new Service(authService, gameService, userService);
         this.serializer = new Gson();
     }

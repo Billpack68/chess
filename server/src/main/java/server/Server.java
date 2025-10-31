@@ -1,5 +1,8 @@
 package server;
 
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
 import handler.Handler;
 import io.javalin.*;
 
@@ -9,7 +12,13 @@ public class Server {
     private final Handler handler;
 
     public Server() {
-        handler = new Handler();
+        // Change this to false in order to use the real database
+        boolean test = true;
+        if (test) {
+            handler = new Handler();
+        } else {
+            handler = new Handler(new AuthDAO(), new UserDAO(), new GameDAO());
+        }
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         javalin.post("/user", handler::registerUser);

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class MemoryAuthDAO {
+public class MemoryAuthDAO extends AuthDAO {
     private final Set<AuthData> authData;
 
     public MemoryAuthDAO() {

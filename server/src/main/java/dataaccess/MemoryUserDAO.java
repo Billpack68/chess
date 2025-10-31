@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class MemoryUserDAO {
+public class MemoryUserDAO extends UserDAO {
     private final Set<UserData> userData;
 
     public MemoryUserDAO() {
