@@ -9,7 +9,7 @@ import java.util.Set;
 public class MemoryUserDAO extends UserDAO {
     private final Set<UserData> userData;
 
-    public MemoryUserDAO() {
+    public MemoryUserDAO() throws DataAccessException, ResponseException {
         this.userData = new HashSet<>();
     }
 

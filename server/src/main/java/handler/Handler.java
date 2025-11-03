@@ -7,6 +7,7 @@ import service.*;
 
 import io.javalin.http.Context;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,13 +18,13 @@ public class Handler {
     private final Service service;
     private Gson serializer;
 
-    public Handler() {
-        this(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
+    public Handler() throws ResponseException, DataAccessException {
+        this(new MemoryUserDAO(), new MemoryAuthDAO(), new MemoryGameDAO());
     }
 
-    public Handler(AuthDAO authDAO, UserDAO userDAO, GameDAO gameDAO) {
-        AuthService authService = new AuthService(authDAO);
+    public Handler(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         UserService userService = new UserService(userDAO);
+        AuthService authService = new AuthService(authDAO);
         GameService gameService = new GameService(gameDAO);
 
         this.service = new Service(authService, gameService, userService);
@@ -47,10 +48,12 @@ public class Handler {
             errorHandler(ctx, 400, e.getMessage());
         } catch (AlreadyTakenException e) {
             errorHandler(ctx, 403, e.getMessage());
+        } catch (SQLException | DataAccessException e) {
+            errorHandler(ctx, 500, e.getMessage());
         }
     }
 
-    public void loginUser(Context ctx) throws MissingDataException {
+    public void loginUser(Context ctx) {
         try {
             LoginRequest request = serializer.fromJson(ctx.body(), LoginRequest.class);
             LoginResult result = service.login(request);

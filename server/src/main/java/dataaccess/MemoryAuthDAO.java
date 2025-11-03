@@ -9,7 +9,7 @@ import java.util.Set;
 public class MemoryAuthDAO extends AuthDAO {
     private final Set<AuthData> authData;
 
-    public MemoryAuthDAO() {
+    public MemoryAuthDAO() throws ResponseException, DataAccessException {
         this.authData = new HashSet<>();
     }
 

@@ -1,7 +1,9 @@
 package service;
 
+import dataaccess.DataAccessException;
 import model.*;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class Service {
@@ -16,7 +18,7 @@ public class Service {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException,
-            MissingDataException{
+            MissingDataException, SQLException, DataAccessException {
         String username = registerRequest.username();
         String password = registerRequest.password();
         String email = registerRequest.email();

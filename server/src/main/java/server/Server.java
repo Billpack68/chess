@@ -12,13 +12,19 @@ public class Server {
 
     public Server() {
         // Change this to false in order to use the real database
-        boolean test = true;
+        boolean test = false;
         Handler tempHandler = null;
         if (test) {
-            tempHandler = new Handler();
+            try {
+                tempHandler = new Handler();
+            } catch(ResponseException | DataAccessException ex) {
+                System.err.println("Failed to initialize database or DAOs (for some reason): " + ex.getMessage());
+                ex.printStackTrace();
+                System.exit(1);
+            }
         } else {
             try {
-                tempHandler = new Handler(new AuthDAO(), new UserDAO(), new GameDAO());
+                tempHandler = new Handler(new UserDAO(), new AuthDAO(), new GameDAO());
             } catch(ResponseException | DataAccessException ex) {
                 System.err.println("Failed to initialize database or DAOs: " + ex.getMessage());
                 ex.printStackTrace();

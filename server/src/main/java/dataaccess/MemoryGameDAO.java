@@ -10,7 +10,7 @@ import java.util.Set;
 public class MemoryGameDAO extends GameDAO {
     private final Collection<GameData> gameData;
 
-    public MemoryGameDAO() {
+    public MemoryGameDAO() throws ResponseException, DataAccessException {
         this.gameData = new HashSet<>();
     }
 

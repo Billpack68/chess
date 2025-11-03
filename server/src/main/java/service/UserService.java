@@ -1,8 +1,10 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class UserService {
@@ -12,7 +14,7 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public void addUser(UserData userData) throws AlreadyTakenException {
+    public void addUser(UserData userData) throws AlreadyTakenException, SQLException, DataAccessException {
         String username = userData.username();
         if (getUserByUsername(username) != null) {
             throw new AlreadyTakenException("Error: already taken");
