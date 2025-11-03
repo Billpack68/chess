@@ -6,19 +6,22 @@ import java.sql.Connection;
 import java.util.Objects;
 
 public class UserDAO {
+    public UserDAO() throws ResponseException, DataAccessException {
+        configureDatabase();
+    }
 
     private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  userData (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `username` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(username),
-              INDEX(password)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
+        """
+        CREATE TABLE IF NOT EXISTS `users` (
+            `id` INT NOT NULL AUTO_INCREMENT,
+            `username` VARCHAR(100) NOT NULL,
+            `password` VARCHAR(256) NOT NULL,
+            `email` VARCHAR(320) NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `username_UNIQUE` (`username`),
+            UNIQUE KEY `email_UNIQUE` (`email`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        """
     };
 
 
