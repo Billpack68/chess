@@ -8,6 +8,7 @@ import service.MissingDataException;
 import java.sql.SQLException;
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DataAccessTests {
@@ -24,7 +25,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestRegisterPositive() throws SQLException, DataAccessException {
+    void TestAddUserPositive() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
         UserData user = userDAO.getUser("username");
@@ -34,12 +35,35 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestRegisterDuplicateUsername() throws SQLException, DataAccessException {
+    void TestAddUserUsernameTaken() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
         UserData sameUsername = new UserData("username", "password2", "email2");
         assertThrows(DataAccessException.class, () -> {
             userDAO.addUserData(sameUsername);
         });
+    }
+
+    @Test
+    void TestGetUserPositive() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("fancyUsername", "password", "email");
+        userDAO.addUserData(newUser);
+        UserData user = userDAO.getUser("fancyUsername");
+        assert(Objects.equals(newUser.username(), user.username()));
+    }
+
+    @Test
+    void TestGetUserInvalidUsername() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("username", "password", "email");
+        userDAO.addUserData(newUser);
+        assertNull(userDAO.getUser("differentUsername"));
+    }
+
+    @Test
+    void TestDeleteUserData() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("fancyUsername", "password", "email");
+        userDAO.addUserData(newUser);
+        userDAO.deleteUserData();
+        assertNull(userDAO.getUser("fancyUsername"));
     }
 }
