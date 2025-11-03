@@ -71,8 +71,17 @@ public class UserDAO {
         }
     }
 
-    public void deleteUserData() {
-        throw new NotImplementedError();
+    public void deleteUserData() throws DataAccessException {
+        String sql = "DELETE FROM users";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to clear users table", e);
+        }
     }
 
     public UserData getUser(String username) throws DataAccessException, SQLException {

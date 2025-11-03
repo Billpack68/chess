@@ -89,7 +89,7 @@ public class Service {
         return new JoinGameResult();
     }
 
-    public ClearDatabaseResult clearDB(ClearDatabaseRequest request) {
+    public ClearDatabaseResult clearDB(ClearDatabaseRequest request) throws DataAccessException {
         userService.deleteUserData();
         authService.deleteAuthData();
         gameService.deleteGameData();

@@ -30,7 +30,7 @@ public class UserService {
         }
     }
 
-    public void deleteUserData() {
+    public void deleteUserData() throws DataAccessException {
         userDAO.deleteUserData();
     }
 

@@ -130,9 +130,14 @@ public class Handler {
     }
 
     public void clearDB(Context ctx) {
-        ClearDatabaseRequest request = serializer.fromJson(ctx.body(), ClearDatabaseRequest.class);
-        ClearDatabaseResult result = service.clearDB(request);
-        ctx.result(serializer.toJson(result));
-        ctx.status(200);
+        try {
+            ClearDatabaseRequest request = serializer.fromJson(ctx.body(), ClearDatabaseRequest.class);
+            ClearDatabaseResult result = service.clearDB(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+        } catch (DataAccessException e) {
+            errorHandler(ctx, 500, e.getMessage());
+        }
+
     }
 }
