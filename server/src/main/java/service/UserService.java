@@ -23,7 +23,7 @@ public class UserService {
         userDAO.addUserData(userData);
     }
 
-    public void loginUser(String username, String password) throws InvalidCredentialsException {
+    public void loginUser(String username, String password) throws InvalidCredentialsException, SQLException, DataAccessException {
         UserData existingUser = getUserByUsername(username);
         if (existingUser == null || !Objects.equals(existingUser.password(), password)) {
             throw new InvalidCredentialsException("Error: unauthorized");
@@ -34,7 +34,7 @@ public class UserService {
         userDAO.deleteUserData();
     }
 
-    public UserData getUserByUsername(String username) {
+    public UserData getUserByUsername(String username) throws SQLException, DataAccessException {
         return userDAO.getUser(username);
     }
 

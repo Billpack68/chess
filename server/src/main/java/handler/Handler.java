@@ -63,6 +63,8 @@ public class Handler {
             errorHandler(ctx, 400, e.getMessage());
         } catch (InvalidCredentialsException e) {
             errorHandler(ctx, 401, e.getMessage());
+        } catch (SQLException | DataAccessException e) {
+            errorHandler(ctx, 500, e.getMessage());
         }
 
     }

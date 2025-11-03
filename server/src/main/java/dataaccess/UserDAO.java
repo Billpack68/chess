@@ -57,13 +57,17 @@ public class UserDAO {
             preparedStatement.setString(2, hashedPassword);
             preparedStatement.setString(3, email);
 
-            int rowsAffected = preparedStatement.executeUpdate();
+            try {
+                int rowsAffected = preparedStatement.executeUpdate();
 
-            if (rowsAffected == 0) {
-                throw new DataAccessException("Failed to insert user — no rows affected.");
+                if (rowsAffected == 0) {
+                    throw new DataAccessException("Failed to insert user — no rows affected.");
+                }
+
+                return newUserData;
+            } catch (SQLException e) {
+                throw new DataAccessException("Username already taken");
             }
-
-            return newUserData; // optional, you could also return nothing (void)
         }
     }
 
@@ -71,7 +75,24 @@ public class UserDAO {
         throw new NotImplementedError();
     }
 
-    public UserData getUser(String username) {
-        throw new NotImplementedError();
+    public UserData getUser(String username) throws DataAccessException, SQLException {
+        String sql = "SELECT username, password, email FROM users WHERE username = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, username);
+
+            try (var resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String foundUsername = resultSet.getString("username");
+                    String password = resultSet.getString("password");
+                    String email = resultSet.getString("email");
+                    return new UserData(foundUsername, password, email);
+                } else {
+                    return null;
+                }
+            }
+        }
     }
 }

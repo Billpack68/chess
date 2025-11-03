@@ -31,7 +31,7 @@ public class Service {
         return new RegisterResult(userAuth.username(), userAuth.authToken());
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws MissingDataException, InvalidCredentialsException {
+    public LoginResult login(LoginRequest loginRequest) throws MissingDataException, InvalidCredentialsException, SQLException, DataAccessException {
         String username = loginRequest.username();
         String password = loginRequest.password();
         if (username == null || password == null) {
