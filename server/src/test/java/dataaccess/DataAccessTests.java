@@ -26,6 +26,7 @@ public class DataAccessTests {
         authDAO.deleteAuthData();
     }
 
+    //AddUser+
     @Test
     void TestAddUserPositive() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
@@ -36,6 +37,7 @@ public class DataAccessTests {
         assert(Objects.equals(newUser.email(), user.email()));
     }
 
+    //AddUser-
     @Test
     void TestAddUserUsernameTaken() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
@@ -46,6 +48,7 @@ public class DataAccessTests {
         });
     }
 
+    //GetUser+
     @Test
     void TestGetUserPositive() throws SQLException, DataAccessException {
         UserData newUser = new UserData("fancyUsername", "password", "email");
@@ -54,6 +57,7 @@ public class DataAccessTests {
         assert(Objects.equals(newUser.username(), user.username()));
     }
 
+    //GetUser-
     @Test
     void TestGetUserInvalidUsername() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
@@ -61,6 +65,7 @@ public class DataAccessTests {
         assertNull(userDAO.getUser("differentUsername"));
     }
 
+    //DeleteUsers+
     @Test
     void TestDeleteUserData() throws SQLException, DataAccessException {
         UserData newUser = new UserData("fancyUsername", "password", "email");
@@ -80,5 +85,31 @@ public class DataAccessTests {
         // Either it throws an error or it returns AuthData with a token and a username, I don't know what
         // the authToken is, but I can compare usernames!
         assert(Objects.equals(result.username(), "username"));
+    }
+
+    @Test
+    void TestAddAuthDataMissingData() {
+        AuthData badData = new AuthData(null, "username");
+        assertThrows(DataAccessException.class, () -> {
+            authDAO.addAuthData(badData);
+        });
+    }
+
+    @Test
+    void TestGetAuthData() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("username", "password", "email");
+        userDAO.addUserData(newUser);
+        AuthService authService = new AuthService(authDAO);
+        AuthData result = authService.createAuth("username");
+        assert(Objects.equals(result, authDAO.findAuthDataByAuthToken(result.authToken())));
+    }
+
+    @Test
+    void TestGetAuthDataBad() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("username", "password", "email");
+        userDAO.addUserData(newUser);
+        AuthService authService = new AuthService(authDAO);
+        AuthData result = authService.createAuth("username");
+        assertNull(authDAO.findAuthDataByAuthToken("fakeAuth"));
     }
 }

@@ -42,21 +42,21 @@ public class Service {
         return new LoginResult(userAuth.username(), userAuth.authToken());
     }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) throws InvalidAuthTokenException {
+    public LogoutResult logout(LogoutRequest logoutRequest) throws InvalidAuthTokenException, SQLException, DataAccessException {
         String authToken = logoutRequest.authToken();
         AuthData authData = authService.getAuth(authToken);
         authService.deleteAuthToken(authData.authToken());
         return new LogoutResult();
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthTokenException {
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthTokenException, SQLException, DataAccessException {
         String authToken = listGamesRequest.authToken();
         AuthData authData = authService.getAuth(authToken);
         return new ListGamesResult(gameService.getGames());
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws
-            MissingDataException, InvalidAuthTokenException {
+            MissingDataException, InvalidAuthTokenException, SQLException, DataAccessException {
         String authToken = createGameRequest.authToken();
         String gameName = createGameRequest.gameName();
         if (authToken == null || gameName == null) {
@@ -69,7 +69,7 @@ public class Service {
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws MissingDataException,
-            InvalidAuthTokenException, GameNotFoundException, ColorAlreadyTakenException {
+            InvalidAuthTokenException, GameNotFoundException, ColorAlreadyTakenException, SQLException, DataAccessException {
         String authToken = joinGameRequest.authToken();
         String playerColor = joinGameRequest.playerColor();
         Integer gameID = joinGameRequest.gameID();

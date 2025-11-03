@@ -76,6 +76,8 @@ public class Handler {
             ctx.status(200);
         } catch (InvalidAuthTokenException e) {
             errorHandler(ctx, 401, e.getMessage());
+        } catch (SQLException | DataAccessException e) {
+            errorHandler(ctx, 500, e.getMessage());
         }
 
     }
@@ -95,6 +97,8 @@ public class Handler {
             ctx.status(200);
         } catch (InvalidAuthTokenException e) {
             errorHandler(ctx, 401, e.getMessage());
+        } catch (SQLException | DataAccessException e) {
+            errorHandler(ctx, 500, e.getMessage());
         }
     }
 
@@ -109,6 +113,8 @@ public class Handler {
             errorHandler(ctx, 400, e.getMessage());
         } catch (InvalidAuthTokenException e) {
             errorHandler(ctx, 401, e.getMessage());
+        } catch (SQLException | DataAccessException e) {
+            errorHandler(ctx, 500, e.getMessage());
         }
     }
 
@@ -126,6 +132,8 @@ public class Handler {
             errorHandler(ctx, 401, e.getMessage());
         } catch (ColorAlreadyTakenException e) {
             errorHandler(ctx, 403, e.getMessage());
+        }  catch (SQLException | DataAccessException e) {
+            errorHandler(ctx, 500, e.getMessage());
         }
     }
 

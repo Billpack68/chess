@@ -15,7 +15,7 @@ public class AuthService {
         this.authDAO = authDAO;
     }
 
-    public AuthData getAuth(String authToken) throws InvalidAuthTokenException {
+    public AuthData getAuth(String authToken) throws InvalidAuthTokenException, SQLException, DataAccessException {
         AuthData returnData = authDAO.findAuthDataByAuthToken(authToken);
         if (returnData == null) {
             throw new InvalidAuthTokenException("Error: unauthorized");

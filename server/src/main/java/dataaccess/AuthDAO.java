@@ -2,6 +2,7 @@ package dataaccess;
 
 import kotlin.NotImplementedError;
 import model.AuthData;
+import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
@@ -70,8 +71,24 @@ public class AuthDAO {
         }
     }
 
-    public AuthData findAuthDataByAuthToken(String authToken) {
-        throw new NotImplementedError();
+    public AuthData findAuthDataByAuthToken(String authToken) throws DataAccessException, SQLException {
+        String sql = "SELECT authToken, username FROM auths WHERE authToken = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, authToken);
+
+            try (var resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String foundAuthToken = resultSet.getString("authToken");
+                    String foundUsername = resultSet.getString("username");
+                    return new AuthData(foundAuthToken, foundUsername);
+                } else {
+                    return null;
+                }
+            }
+        }
     }
 
     public void deleteAuthDataByAuthToken(String authToken) {
