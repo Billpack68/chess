@@ -2,8 +2,10 @@ package dataaccess;
 
 import kotlin.NotImplementedError;
 import model.AuthData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class AuthDAO {
@@ -41,8 +43,31 @@ public class AuthDAO {
     }
 
 
-    public AuthData addAuthData(AuthData newAuthData) {
-        throw new NotImplementedError();
+    public AuthData addAuthData(AuthData newAuthData) throws DataAccessException, SQLException {
+        String sql = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            String authToken = newAuthData.authToken();
+            String username = newAuthData.username();
+
+
+            preparedStatement.setString(1, authToken);
+            preparedStatement.setString(2, username);
+
+            try {
+                int rowsAffected = preparedStatement.executeUpdate();
+
+                if (rowsAffected == 0) {
+                    throw new DataAccessException("Unable to add authData");
+                }
+
+                return newAuthData;
+            } catch (SQLException e) {
+                throw new DataAccessException("Unable to add authData (username not found): " + e.getMessage());
+            }
+        }
     }
 
     public AuthData findAuthDataByAuthToken(String authToken) {
@@ -53,7 +78,16 @@ public class AuthDAO {
         throw new NotImplementedError();
     }
 
-    public void deleteAuthData() {
-        throw new NotImplementedError();
+    public void deleteAuthData() throws DataAccessException {
+        String sql = "DELETE FROM auths";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to clear users table", e);
+        }
     }
 }

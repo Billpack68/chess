@@ -1,8 +1,10 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import model.AuthData;
 
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -21,14 +23,14 @@ public class AuthService {
         return returnData;
     }
 
-    public AuthData createAuth(String username) {
+    public AuthData createAuth(String username) throws SQLException, DataAccessException {
         String authToken = generateToken();
         AuthData newAuthData = new AuthData(authToken, username);
         authDAO.addAuthData(newAuthData);
         return newAuthData;
     }
 
-    public void deleteAuthData() {
+    public void deleteAuthData() throws DataAccessException {
         authDAO.deleteAuthData();
     }
 

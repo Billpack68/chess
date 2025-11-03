@@ -3,6 +3,7 @@ import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
+import service.AuthService;
 import service.MissingDataException;
 
 import java.sql.SQLException;
@@ -22,6 +23,7 @@ public class DataAccessTests {
         authDAO = new AuthDAO();
         gameDAO = new GameDAO();
         userDAO.deleteUserData();
+        authDAO.deleteAuthData();
     }
 
     @Test
@@ -65,5 +67,18 @@ public class DataAccessTests {
         userDAO.addUserData(newUser);
         userDAO.deleteUserData();
         assertNull(userDAO.getUser("fancyUsername"));
+    }
+
+    @Test
+    void TestAddAuthData() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("username", "password", "email");
+        userDAO.addUserData(newUser);
+
+        AuthService authService = new AuthService(authDAO);
+
+        AuthData result = authService.createAuth("username");
+        // Either it throws an error or it returns AuthData with a token and a username, I don't know what
+        // the authToken is, but I can compare usernames!
+        assert(Objects.equals(result.username(), "username"));
     }
 }
