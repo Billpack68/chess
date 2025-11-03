@@ -2,9 +2,11 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.*;
+import org.eclipse.jetty.server.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -15,24 +17,28 @@ public class ServiceTests {
 
     @BeforeEach
     void setUp() {
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
-        AuthService authService = new AuthService(authDAO);
-        MemoryUserDAO userDAO = new MemoryUserDAO();
-        UserService userService = new UserService(userDAO);
-        MemoryGameDAO gameDAO = new MemoryGameDAO();
-        GameService gameService = new GameService(gameDAO);
-        service = new Service(authService, gameService, userService);
+        try {
+            MemoryAuthDAO authDAO = new MemoryAuthDAO();
+            AuthService authService = new AuthService(authDAO);
+            MemoryUserDAO userDAO = new MemoryUserDAO();
+            UserService userService = new UserService(userDAO);
+            MemoryGameDAO gameDAO = new MemoryGameDAO();
+            GameService gameService = new GameService(gameDAO);
+            service = new Service(authService, gameService, userService);
+        } catch (ResponseException | DataAccessException e) {
+            System.out.println("Why?");
+        }
     }
 
     @Test
-    void testRegisterPositive() throws MissingDataException, AlreadyTakenException {
+    void testRegisterPositive() throws MissingDataException, AlreadyTakenException, SQLException, DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
         RegisterResult result = service.register(registerRequest);
         assert(Objects.equals(result.username(), "username"));
     }
 
     @Test
-    void testRegisterUsernameTaken() throws MissingDataException, AlreadyTakenException {
+    void testRegisterUsernameTaken() throws MissingDataException, AlreadyTakenException, SQLException, DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
         service.register(registerRequest);
         assertThrows(AlreadyTakenException.class, () -> {
@@ -49,7 +55,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testLoginPositive() throws MissingDataException, InvalidCredentialsException {
+    void testLoginPositive() throws MissingDataException, InvalidCredentialsException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -58,7 +64,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testLoginInvalidUsername() throws MissingDataException {
+    void testLoginInvalidUsername() throws MissingDataException, SQLException, DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
         service.register(registerRequest);
         LoginRequest loginRequest = new LoginRequest("wrong", "password");
@@ -68,7 +74,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testLoginInvalidPassword() throws MissingDataException {
+    void testLoginInvalidPassword() throws MissingDataException, SQLException, DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
         service.register(registerRequest);
         LoginRequest loginRequest = new LoginRequest("username", "wrong");
@@ -86,7 +92,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testLogoutPositive() throws InvalidAuthTokenException, MissingDataException {
+    void testLogoutPositive() throws InvalidAuthTokenException, MissingDataException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -98,7 +104,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testLogoutInvalidAuthToken() throws MissingDataException {
+    void testLogoutInvalidAuthToken() throws MissingDataException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -110,7 +116,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testCreateGamePositive() throws InvalidAuthTokenException, MissingDataException {
+    void testCreateGamePositive() throws InvalidAuthTokenException, MissingDataException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -126,7 +132,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testCreateGameInvalidAuthToken() throws InvalidAuthTokenException, MissingDataException {
+    void testCreateGameInvalidAuthToken() throws InvalidAuthTokenException, MissingDataException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -139,7 +145,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testCreateGameMissingData() throws InvalidAuthTokenException, MissingDataException {
+    void testCreateGameMissingData() throws InvalidAuthTokenException, MissingDataException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -152,7 +158,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testListGamesPositive() throws InvalidAuthTokenException, MissingDataException {
+    void testListGamesPositive() throws InvalidAuthTokenException, MissingDataException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -180,7 +186,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testListGamesInvalidAuthToken() throws InvalidAuthTokenException, MissingDataException {
+    void testListGamesInvalidAuthToken() throws InvalidAuthTokenException, MissingDataException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -193,7 +199,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testJoinGamePositive() throws MissingDataException, InvalidAuthTokenException {
+    void testJoinGamePositive() throws MissingDataException, InvalidAuthTokenException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -210,7 +216,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testJoinGameMissingData() throws MissingDataException, InvalidAuthTokenException {
+    void testJoinGameMissingData() throws MissingDataException, InvalidAuthTokenException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -224,7 +230,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testJoinGameInvalidGameID() throws MissingDataException, InvalidAuthTokenException {
+    void testJoinGameInvalidGameID() throws MissingDataException, InvalidAuthTokenException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -237,7 +243,7 @@ public class ServiceTests {
         });
     }
     @Test
-    void testJoinGameColorAlreadyTaken() throws MissingDataException, InvalidAuthTokenException {
+    void testJoinGameColorAlreadyTaken() throws MissingDataException, InvalidAuthTokenException, SQLException, DataAccessException {
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);
         LoginRequest dummyLogin = new LoginRequest("username", "password");
@@ -252,7 +258,7 @@ public class ServiceTests {
     }
 
     @Test
-    void testClearDB() throws MissingDataException, InvalidAuthTokenException {
+    void testClearDB() throws MissingDataException, InvalidAuthTokenException, SQLException, DataAccessException {
         // Copying the code from the test for list games in order to populate my DB
         RegisterRequest dummyRegister = new RegisterRequest("username", "password", "email");
         service.register(dummyRegister);

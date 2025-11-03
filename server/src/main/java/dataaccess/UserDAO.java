@@ -1,5 +1,6 @@
 package dataaccess;
 
+import kotlin.NotImplementedError;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -40,25 +41,37 @@ public class UserDAO {
         }
     }
 
+// TODO: Write a unit test and test this method
 
     public UserData addUserData(UserData newUserData) throws DataAccessException, SQLException {
-        return null;
-//        try (var conn = DatabaseManager.getConnection()) {
-//            try (var preparedStatement = conn.prepareStatement("INSERT INTO users (username, password, email) VALUES (?, ?, ?)")) {
-//                String username = newUserData.username();
-//                String hashedPassword = BCrypt.hashpw(newUserData.password(), BCrypt.gensalt());
-//                String email = newUserData.email();
-//                int id = executeUpdate()
-//                System.out.println(rs.getInt(1));
-//            }
-//        }
+        String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            String username = newUserData.username();
+            String hashedPassword = BCrypt.hashpw(newUserData.password(), BCrypt.gensalt());
+            String email = newUserData.email();
+
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, hashedPassword);
+            preparedStatement.setString(3, email);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new DataAccessException("Failed to insert user — no rows affected.");
+            }
+
+            return newUserData; // optional, you could also return nothing (void)
+        }
     }
 
     public void deleteUserData() {
-        return;
+        throw new NotImplementedError();
     }
 
     public UserData getUser(String username) {
-        return null;
+        throw new NotImplementedError();
     }
 }

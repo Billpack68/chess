@@ -1,5 +1,6 @@
 package dataaccess;
 
+import kotlin.NotImplementedError;
 import model.AuthData;
 
 import java.sql.Connection;
@@ -41,18 +42,18 @@ public class AuthDAO {
 
 
     public AuthData addAuthData(AuthData newAuthData) {
-        return null;
+        throw new NotImplementedError();
     }
 
     public AuthData findAuthDataByAuthToken(String authToken) {
-        return null;
+        throw new NotImplementedError();
     }
 
     public void deleteAuthDataByAuthToken(String authToken) {
-        return;
+        throw new NotImplementedError();
     }
 
     public void deleteAuthData() {
-        return;
+        throw new NotImplementedError();
     }
 }

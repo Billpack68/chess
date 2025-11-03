@@ -1,5 +1,6 @@
 package dataaccess;
 
+import kotlin.NotImplementedError;
 import model.GameData;
 
 import java.sql.Connection;
@@ -46,24 +47,26 @@ public class GameDAO {
 
 
     public void addGameData(GameData newGameData) {
-        return;
+        throw new NotImplementedError();
     }
 
     public int getNextGameID() {
-        return 1;
+        throw new NotImplementedError();
     }
 
     public void removeGameData(GameData searchData) {
-        return;
+        throw new NotImplementedError();
     }
 
     public GameData findGameDataByID(int gameID) {
-        return null;
+        throw new NotImplementedError();
     }
 
-    public Collection<GameData> getGames() { return null; }
+    public Collection<GameData> getGames() {
+        throw new NotImplementedError();
+    }
 
     public void deleteGameData() {
-        return;
+        throw new NotImplementedError();
     }
 }
