@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import kotlin.NotImplementedError;
 import model.AuthData;
@@ -98,8 +99,29 @@ public class GameDAO {
         throw new NotImplementedError();
     }
 
-    public GameData findGameDataByID(int gameID) {
-        throw new NotImplementedError();
+    public GameData findGameDataByID(int gameID) throws DataAccessException {
+        String sql = "SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, Integer.toString(gameID));
+
+            try (var resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int foundID = resultSet.getInt("id");
+                    String whiteUsername = resultSet.getString("whiteUsername");
+                    String blackUsername = resultSet.getString("blackUsername");
+                    String gameName = resultSet.getString("gameName");
+                    ChessGame game = gson.fromJson(resultSet.getString("game"), ChessGame.class);
+                    return new GameData(foundID, whiteUsername, blackUsername, gameName, game);
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to find game", e);
+        }
     }
 
     public Collection<GameData> getGames() {

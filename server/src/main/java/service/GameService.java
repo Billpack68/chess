@@ -16,7 +16,7 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public GameData findGameDataByID(int gameID) {
+    public GameData findGameDataByID(int gameID) throws DataAccessException {
         GameData gameData = gameDAO.findGameDataByID(gameID);
         if (gameData == null) {
             throw new GameNotFoundException("Error: bad request");
