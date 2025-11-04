@@ -16,11 +16,13 @@ public class MemoryGameDAO extends GameDAO {
 
     public int addGameData(GameData newGameData) {
         int newID = getNextGameID();
-        newGameData.setNew
-        gameData.add(newGameData);
+        GameData fixedData = new GameData(newID, newGameData.whiteUsername(), newGameData.blackUsername(),
+                newGameData.gameName(), newGameData.game());
+        gameData.add(fixedData);
+        return newID;
     }
 
-    public int getNextGameID() {
+    private int getNextGameID() {
         int max = 0;
         for (GameData data : gameData) {
             if (data.gameID() > max) {

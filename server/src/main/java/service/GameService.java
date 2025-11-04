@@ -40,11 +40,9 @@ public class GameService {
     }
 
     public int createGame(String gameName) throws SQLException, DataAccessException {
-        int newGameID = gameDAO.getNextGameID();
         ChessGame newChessGame = new ChessGame();
-        GameData newGame = new GameData(newGameID, null, null, gameName, newChessGame);
-        gameDAO.addGameData(newGame);
-        return newGameID;
+        GameData newGame = new GameData(null, null, null, gameName, newChessGame);
+        return gameDAO.addGameData(newGame);
     }
 
     public void deleteGameData() throws DataAccessException {

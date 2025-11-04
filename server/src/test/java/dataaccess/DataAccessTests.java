@@ -226,17 +226,17 @@ public class DataAccessTests {
 
     @Test
     void TestAddGame() throws SQLException, DataAccessException {
-        int nextGameID = gameDAO.getNextGameID();
-        GameData newGameData = new GameData(nextGameID, null, null, "gameName",
+        GameData newGameData = new GameData(null, null, null, "gameName",
                 new ChessGame());
-        gameDAO.addGameData(newGameData);
-        assert(gameDAO.getNextGameID() == 2);
+        GameData newGameData2 = new GameData(null, null, null, "gameName",
+                new ChessGame());
+        int gameID1 = gameDAO.addGameData(newGameData);
+        int gameID2 = gameDAO.addGameData(newGameData2);
     }
 
     @Test
     void TestAddGameInvalidUsername() throws SQLException, DataAccessException {
-        int nextGameID = gameDAO.getNextGameID();
-        GameData newGameData = new GameData(nextGameID, "fakeUsername", null, "gameName",
+        GameData newGameData = new GameData(null, "fakeUsername", null, "gameName",
                 new ChessGame());
         assertThrows(DataAccessException.class, () -> {
             gameDAO.addGameData(newGameData);
@@ -250,9 +250,6 @@ public class DataAccessTests {
         GameData newGameData2 = new GameData(2, null, null, "gameName",
                 new ChessGame());
         gameDAO.addGameData(newGameData);
-        int firstNextGameID = gameDAO.getNextGameID();
         gameDAO.addGameData(newGameData2);
-        int nextGameID = gameDAO.getNextGameID();
-        assert(nextGameID == 3);
     }
 }

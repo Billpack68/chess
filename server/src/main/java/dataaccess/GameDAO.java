@@ -77,20 +77,20 @@ public class GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-    }
 
-    public int getNextGameID() throws DataAccessException, SQLException {
-        String sql = "SELECT MAX(id) FROM games";
+        String sql2 = "SELECT MAX(id) FROM games";
 
         try (var conn = DatabaseManager.getConnection();
-             var preparedStatement = conn.prepareStatement(sql);
+             var preparedStatement = conn.prepareStatement(sql2);
              var rs = preparedStatement.executeQuery()) {
 
             int maxId = 0;
             if (rs.next()) {
                 maxId = rs.getInt(1);
             }
-            return maxId + 1;
+            return maxId;
+        } catch (SQLException e) {
+            throw new DataAccessException("Couldn't connect", e);
         }
     }
 
