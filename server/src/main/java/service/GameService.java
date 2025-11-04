@@ -27,7 +27,6 @@ public class GameService {
     public Collection<GameData> getGames() { return gameDAO.getGames(); }
 
     public void joinGame(GameData gameData, String teamColor, String username) throws DataAccessException {
-        gameDAO.removeGameData(gameData);
         GameData newGameData;
         if (Objects.equals(teamColor, "WHITE")) {
             newGameData = new GameData(gameData.gameID(), username, gameData.blackUsername(),
@@ -36,7 +35,7 @@ public class GameService {
             newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), username,
                     gameData.gameName(), gameData.game());
         }
-        gameDAO.addGameData(newGameData);
+        gameDAO.updateGame(gameData, newGameData);
     }
 
     public int createGame(String gameName) throws SQLException, DataAccessException {

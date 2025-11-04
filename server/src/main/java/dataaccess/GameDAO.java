@@ -95,8 +95,18 @@ public class GameDAO {
         }
     }
 
-    public void removeGameData(GameData searchData) {
-        throw new NotImplementedError();
+    public void removeGameData(GameData searchData) throws DataAccessException {
+        String sql = "DELETE FROM games WHERE id = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, Integer.toString(searchData.gameID()));
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException("Unable to remove game", e);
+        }
     }
 
     public GameData findGameDataByID(int gameID) throws DataAccessException {
@@ -105,19 +115,18 @@ public class GameDAO {
         try (var conn = DatabaseManager.getConnection();
              var preparedStatement = conn.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, Integer.toString(gameID));
+            preparedStatement.setInt(1, gameID);
 
-            try (var resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    int foundID = resultSet.getInt("id");
-                    String whiteUsername = resultSet.getString("whiteUsername");
-                    String blackUsername = resultSet.getString("blackUsername");
-                    String gameName = resultSet.getString("gameName");
-                    ChessGame game = gson.fromJson(resultSet.getString("game"), ChessGame.class);
-                    return new GameData(foundID, whiteUsername, blackUsername, gameName, game);
-                } else {
-                    return null;
-                }
+            var resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int foundID = resultSet.getInt("id");
+                String whiteUsername = resultSet.getString("whiteUsername");
+                String blackUsername = resultSet.getString("blackUsername");
+                String gameName = resultSet.getString("gameName");
+                ChessGame game = gson.fromJson(resultSet.getString("game"), ChessGame.class);
+                return new GameData(foundID, whiteUsername, blackUsername, gameName, game);
+            } else {
+                return null;
             }
         } catch (SQLException e) {
             throw new DataAccessException("Unable to find game", e);
@@ -126,6 +135,22 @@ public class GameDAO {
 
     public Collection<GameData> getGames() {
         throw new NotImplementedError();
+    }
+
+    public void updateGame(GameData oldGameData, GameData newGameData) throws DataAccessException {
+        String sql = "UPDATE games SET whiteUsername = ?, blackUsername = ?, game = ? WHERE id = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, newGameData.whiteUsername());
+            preparedStatement.setString(2, newGameData.blackUsername());
+            preparedStatement.setString(3, gson.toJson(newGameData.game()));
+            preparedStatement.setInt(4, newGameData.gameID());
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException("Unable to remove game", e);
+        }
     }
 
     public void deleteGameData() throws DataAccessException {

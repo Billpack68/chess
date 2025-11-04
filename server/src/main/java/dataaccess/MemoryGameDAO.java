@@ -36,6 +36,11 @@ public class MemoryGameDAO extends GameDAO {
         gameData.remove(searchData);
     }
 
+    public void updateGame(GameData oldData, GameData newData) {
+        gameData.remove(oldData);
+        gameData.add(newData);
+    }
+
     public GameData findGameDataByID(int gameID) {
         for (GameData game : gameData) {
             if (game.gameID() == gameID) {
