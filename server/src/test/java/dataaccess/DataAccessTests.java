@@ -247,5 +247,80 @@ public class DataAccessTests {
         });
     }
 
+    @Test
+    void TestFindGameDataByID() throws DataAccessException {
+        GameData newGameData = new GameData(null, null, null, "gameName",
+                new ChessGame());
+        int gameID1 = gameDAO.addGameData(newGameData);
+        GameData results = gameDAO.findGameDataByID(gameID1);
+        assert(results.game().equals(newGameData.game()));
+    }
+
+    @Test
+    void TestFindGameDataByIDNegative() throws DataAccessException {
+        GameData newGameData = new GameData(null, null, null, "gameName",
+                new ChessGame());
+        int gameID1 = gameDAO.addGameData(newGameData);
+        GameData results = gameDAO.findGameDataByID(gameID1+1);
+        assertNull(results);
+    }
+
+    @Test
+    void TestGetGames() throws DataAccessException {
+        GameData newGameData = new GameData(null, null, null, "gameName",
+                new ChessGame());
+        GameData newGameData2 = new GameData(null, null, null, "gameName2",
+                new ChessGame());
+        gameDAO.addGameData(newGameData);
+        gameDAO.addGameData(newGameData2);
+        assert(gameDAO.getGames().size() == 2);
+    }
+
+    @Test
+    void TestGetGamesNegative() throws DataAccessException {
+        // No games added yet
+        assert(gameDAO.getGames().isEmpty());
+    }
+
+    @Test
+    void TestUpdateGamePositive() throws DataAccessException {
+        userDAO.addUserData(new UserData("white", "pw", "email"));
+        userDAO.addUserData(new UserData("black", "pw", "email2"));
+        GameData original = new GameData(null, null, null, "gameName",
+                new ChessGame());
+        int gameID = gameDAO.addGameData(original);
+        GameData newGameData = new GameData(gameID, "white", "black", "gameName",
+                new ChessGame());
+        gameDAO.updateGame(original, newGameData);
+        GameData result = gameDAO.findGameDataByID(gameID);
+        assert(Objects.equals(result.whiteUsername(), "white"));
+        assert(Objects.equals(result.blackUsername(), "black"));
+    }
+
+    @Test
+    void TestupdateGameInvalidUsername() throws DataAccessException {
+        GameData original = new GameData(null, null, null, "gameName",
+                new ChessGame());
+        int gameID = gameDAO.addGameData(original);
+        GameData newGameData = new GameData(gameID, "white", null, "gameName",
+                new ChessGame());
+        assertThrows(DataAccessException.class, () -> {
+            gameDAO.updateGame(original, newGameData);
+        });
+    }
+
+    @Test
+    void TestDeleteGameData() throws DataAccessException {
+        GameData newGameData = new GameData(null, null, null, "gameName",
+                new ChessGame());
+        GameData newGameData2 = new GameData(null, null, null, "gameName2",
+                new ChessGame());
+        int id1 = gameDAO.addGameData(newGameData);
+        int id2 = gameDAO.addGameData(newGameData2);
+        gameDAO.deleteGameData();
+        assertNull(gameDAO.findGameDataByID(id1));
+        assertNull(gameDAO.findGameDataByID(id2));
+    }
+
 
 }

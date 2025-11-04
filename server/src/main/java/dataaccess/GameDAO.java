@@ -97,20 +97,6 @@ public class GameDAO {
         }
     }
 
-    public void removeGameData(GameData searchData) throws DataAccessException {
-        String sql = "DELETE FROM games WHERE id = ?";
-
-        try (var conn = DatabaseManager.getConnection();
-             var preparedStatement = conn.prepareStatement(sql)) {
-
-            preparedStatement.setString(1, Integer.toString(searchData.gameID()));
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Error: Unable to remove game", e);
-        }
-    }
-
     public GameData findGameDataByID(int gameID) throws DataAccessException {
         String sql = "SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id = ?";
 
@@ -169,7 +155,7 @@ public class GameDAO {
             preparedStatement.executeUpdate();
 
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Error: Unable to remove game", e);
+            throw new DataAccessException("Error: Unable to update game", e);
         }
     }
 
