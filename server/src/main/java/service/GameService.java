@@ -24,7 +24,7 @@ public class GameService {
         return gameData;
     }
 
-    public Collection<GameData> getGames() { return gameDAO.getGames(); }
+    public Collection<GameData> getGames() throws DataAccessException { return gameDAO.getGames(); }
 
     public void joinGame(GameData gameData, String teamColor, String username) throws DataAccessException {
         GameData newGameData;

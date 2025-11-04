@@ -37,11 +37,12 @@ public class UserDAO {
                 }
             }
         } catch (java.sql.SQLException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 
-    public UserData addUserData(UserData newUserData) throws DataAccessException, SQLException {
+    public UserData addUserData(UserData newUserData) throws DataAccessException {
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
 
         try (var conn = DatabaseManager.getConnection();
@@ -59,13 +60,15 @@ public class UserDAO {
                 int rowsAffected = preparedStatement.executeUpdate();
 
                 if (rowsAffected == 0) {
-                    throw new DataAccessException("Failed to insert user — no rows affected.");
+                    throw new DataAccessException("Error: Failed to insert user — no rows affected.");
                 }
 
                 return newUserData;
             } catch (SQLException e) {
-                throw new DataAccessException("Username or email already taken");
+                throw new DataAccessException("Error: Username or email already taken");
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unable to add user to table");
         }
     }
 
@@ -78,11 +81,11 @@ public class UserDAO {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to clear users table", e);
+            throw new DataAccessException("Error: Unable to clear users table", e);
         }
     }
 
-    public UserData getUser(String username) throws DataAccessException, SQLException {
+    public UserData getUser(String username) throws DataAccessException {
         String sql = "SELECT username, password, email FROM users WHERE username = ?";
 
         try (var conn = DatabaseManager.getConnection();
@@ -100,6 +103,8 @@ public class UserDAO {
                     return null;
                 }
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unable to add user to table");
         }
     }
 }

@@ -9,6 +9,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class GameDAO {
@@ -49,7 +50,8 @@ public class GameDAO {
                 }
             }
         } catch (java.sql.SQLException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 
@@ -73,10 +75,10 @@ public class GameDAO {
             int rowsAffected = preparedStatement.executeUpdate();
 
             if (rowsAffected == 0) {
-                throw new DataAccessException("Failed to insert game — no rows affected.");
+                throw new DataAccessException("Error: Failed to insert game — no rows affected.");
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: unable to add game to database");
         }
 
         String sql2 = "SELECT MAX(id) FROM games";
@@ -91,7 +93,7 @@ public class GameDAO {
             }
             return maxId;
         } catch (SQLException e) {
-            throw new DataAccessException("Couldn't connect", e);
+            throw new DataAccessException("Error: Couldn't connect", e);
         }
     }
 
@@ -105,7 +107,7 @@ public class GameDAO {
             preparedStatement.executeUpdate();
 
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Unable to remove game", e);
+            throw new DataAccessException("Error: Unable to remove game", e);
         }
     }
 
@@ -129,12 +131,30 @@ public class GameDAO {
                 return null;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to find game", e);
+            throw new DataAccessException("Error: Unable to find game", e);
         }
     }
 
-    public Collection<GameData> getGames() {
-        throw new NotImplementedError();
+    public Collection<GameData> getGames() throws DataAccessException {
+        String sql = "SELECT * FROM games";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            var resultSet = preparedStatement.executeQuery();
+            Collection<GameData> results = new ArrayList<>();
+            while (resultSet.next()) {
+                int foundID = resultSet.getInt("id");
+                String whiteUsername = resultSet.getString("whiteUsername");
+                String blackUsername = resultSet.getString("blackUsername");
+                String gameName = resultSet.getString("gameName");
+                ChessGame game = gson.fromJson(resultSet.getString("game"), ChessGame.class);
+                results.add(new GameData(foundID, whiteUsername, blackUsername, gameName, game));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: Unable to find game", e);
+        }
     }
 
     public void updateGame(GameData oldGameData, GameData newGameData) throws DataAccessException {
@@ -149,7 +169,7 @@ public class GameDAO {
             preparedStatement.executeUpdate();
 
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Unable to remove game", e);
+            throw new DataAccessException("Error: Unable to remove game", e);
         }
     }
 
@@ -162,7 +182,7 @@ public class GameDAO {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to clear games table", e);
+            throw new DataAccessException("Error: Unable to clear games table", e);
         }
     }
 }

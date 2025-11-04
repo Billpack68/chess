@@ -39,12 +39,12 @@ public class AuthDAO {
                 }
             }
         } catch (java.sql.SQLException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 
 
-    public AuthData addAuthData(AuthData newAuthData) throws DataAccessException, SQLException {
+    public AuthData addAuthData(AuthData newAuthData) throws DataAccessException {
         String sql = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
 
         try (var conn = DatabaseManager.getConnection();
@@ -61,17 +61,19 @@ public class AuthDAO {
                 int rowsAffected = preparedStatement.executeUpdate();
 
                 if (rowsAffected == 0) {
-                    throw new DataAccessException("Unable to add authData");
+                    throw new DataAccessException("Error: Unable to add authData");
                 }
 
                 return newAuthData;
             } catch (SQLException e) {
-                throw new DataAccessException("Unable to add authData (username not found): " + e.getMessage());
+                throw new DataAccessException("Error: Unable to add authData (username not found): " + e.getMessage());
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unable to add user to table");
         }
     }
 
-    public AuthData findAuthDataByAuthToken(String authToken) throws DataAccessException, SQLException {
+    public AuthData findAuthDataByAuthToken(String authToken) throws DataAccessException {
         String sql = "SELECT authToken, username FROM auths WHERE authToken = ?";
 
         try (var conn = DatabaseManager.getConnection();
@@ -88,6 +90,8 @@ public class AuthDAO {
                     return null;
                 }
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unable to add user to table");
         }
     }
 
@@ -101,7 +105,7 @@ public class AuthDAO {
             preparedStatement.executeUpdate();
 
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("Unable to clear users table", e);
+            throw new DataAccessException("Error: Unable to clear users table", e);
         }
     }
 
@@ -114,7 +118,7 @@ public class AuthDAO {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to clear users table", e);
+            throw new DataAccessException("Error: Unable to clear users table", e);
         }
     }
 }
