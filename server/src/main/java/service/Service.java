@@ -69,7 +69,8 @@ public class Service {
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws MissingDataException,
-            InvalidAuthTokenException, GameNotFoundException, ColorAlreadyTakenException, SQLException, DataAccessException {
+            InvalidAuthTokenException, GameNotFoundException, ColorAlreadyTakenException,
+            SQLException, DataAccessException {
         String authToken = joinGameRequest.authToken();
         String playerColor = joinGameRequest.playerColor();
         Integer gameID = joinGameRequest.gameID();

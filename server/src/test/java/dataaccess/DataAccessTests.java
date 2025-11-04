@@ -9,8 +9,7 @@ import service.MissingDataException;
 import java.sql.SQLException;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DataAccessTests {
     private UserDAO userDAO;
@@ -111,5 +110,65 @@ public class DataAccessTests {
         AuthService authService = new AuthService(authDAO);
         AuthData result = authService.createAuth("username");
         assertNull(authDAO.findAuthDataByAuthToken("fakeAuth"));
+    }
+
+    @Test
+    void TestDeleteAuthDataByAuthDataPositive() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("username", "password", "email");
+        userDAO.addUserData(newUser);
+
+        AuthService authService = new AuthService(authDAO);
+        AuthData result = authService.createAuth("username");
+
+        assertNotNull(authDAO.findAuthDataByAuthToken(result.authToken()));
+
+        authDAO.deleteAuthDataByAuthToken(result.authToken());
+
+        assertNull(authDAO.findAuthDataByAuthToken(result.authToken()));
+    }
+
+    @Test
+    void TestDeleteAuthDataByAuthDataNegative() throws SQLException, DataAccessException {
+        UserData newUser = new UserData("username", "password", "email");
+        userDAO.addUserData(newUser);
+
+        AuthService authService = new AuthService(authDAO);
+        AuthData result = authService.createAuth("username");
+
+        assertNotNull(authDAO.findAuthDataByAuthToken(result.authToken()));
+
+        authDAO.deleteAuthDataByAuthToken("fakeAuthToken");
+
+        assertNotNull(authDAO.findAuthDataByAuthToken(result.authToken()));
+    }
+
+    @Test
+    void TestDeleteAllAuthData() throws SQLException, DataAccessException {
+        UserData newUser1 = new UserData("username1", "password", "email1");
+        UserData newUser2 = new UserData("username2", "password", "email2");
+        UserData newUser3 = new UserData("username3", "password", "email3");
+        UserData newUser4 = new UserData("username4", "password", "email4");
+        userDAO.addUserData(newUser1);
+        userDAO.addUserData(newUser2);
+        userDAO.addUserData(newUser3);
+        userDAO.addUserData(newUser4);
+
+        AuthService authService = new AuthService(authDAO);
+        AuthData result1 = authService.createAuth("username1");
+        AuthData result2 = authService.createAuth("username2");
+        AuthData result3 = authService.createAuth("username3");
+        AuthData result4 = authService.createAuth("username4");
+
+        assertNotNull(authDAO.findAuthDataByAuthToken(result1.authToken()));
+        assertNotNull(authDAO.findAuthDataByAuthToken(result2.authToken()));
+        assertNotNull(authDAO.findAuthDataByAuthToken(result3.authToken()));
+        assertNotNull(authDAO.findAuthDataByAuthToken(result4.authToken()));
+
+        authDAO.deleteAuthData();
+
+        assertNull(authDAO.findAuthDataByAuthToken(result1.authToken()));
+        assertNull(authDAO.findAuthDataByAuthToken(result2.authToken()));
+        assertNull(authDAO.findAuthDataByAuthToken(result3.authToken()));
+        assertNull(authDAO.findAuthDataByAuthToken(result4.authToken()));
     }
 }

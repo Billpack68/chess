@@ -66,7 +66,7 @@ public class UserDAO {
 
                 return newUserData;
             } catch (SQLException e) {
-                throw new DataAccessException("Username already taken");
+                throw new DataAccessException("Username or email already taken");
             }
         }
     }

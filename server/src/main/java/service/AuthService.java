@@ -34,7 +34,7 @@ public class AuthService {
         authDAO.deleteAuthData();
     }
 
-    public void deleteAuthToken(String authToken) {
+    public void deleteAuthToken(String authToken) throws DataAccessException {
         authDAO.deleteAuthDataByAuthToken(authToken);
     }
 

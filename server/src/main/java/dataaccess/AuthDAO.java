@@ -91,8 +91,18 @@ public class AuthDAO {
         }
     }
 
-    public void deleteAuthDataByAuthToken(String authToken) {
-        throw new NotImplementedError();
+    public void deleteAuthDataByAuthToken(String authToken) throws DataAccessException {
+        String sql = "DELETE FROM auths WHERE authToken = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, authToken);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException("Unable to clear users table", e);
+        }
     }
 
     public void deleteAuthData() throws DataAccessException {
