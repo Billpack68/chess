@@ -1,4 +1,9 @@
 package dataaccess;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
+import com.google.gson.Gson;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -170,5 +175,51 @@ public class DataAccessTests {
         assertNull(authDAO.findAuthDataByAuthToken(result2.authToken()));
         assertNull(authDAO.findAuthDataByAuthToken(result3.authToken()));
         assertNull(authDAO.findAuthDataByAuthToken(result4.authToken()));
+    }
+
+    @Test
+    void testGameGsoning() throws InvalidMoveException {
+        ChessGame original = new ChessGame();
+
+        Gson gson = new Gson();
+        String json = gson.toJson(original);
+        ChessGame copy = gson.fromJson(json, ChessGame.class);
+        assert(copy.equals(original));
+
+        ChessMove firstMove = new ChessMove(new ChessPosition(2, 5), new ChessPosition(4, 5),
+                null);
+        original.makeMove(firstMove);
+
+        ChessMove secondMove = new ChessMove(new ChessPosition(7, 1), new ChessPosition(5, 1),
+                null);
+        original.makeMove(secondMove);
+
+        ChessMove thirdMove = new ChessMove(new ChessPosition(4, 5), new ChessPosition(5, 5),
+                null);
+        original.makeMove(thirdMove);
+
+        json = gson.toJson(original);
+        copy = gson.fromJson(json, ChessGame.class);
+        assert(copy.equals(original));
+
+        ChessMove fourthMove = new ChessMove(new ChessPosition(7, 4), new ChessPosition(5, 4),
+                null);
+        original.makeMove(fourthMove);
+
+        json = gson.toJson(original);
+        copy = gson.fromJson(json, ChessGame.class);
+        assert(copy.equals(original));
+        assert(copy.getPossibleEnPassant().equals(original.getPossibleEnPassant()));
+
+        ChessMove enPassant = new ChessMove(new ChessPosition(5,5), new ChessPosition(6,4),
+                null);
+        original.makeMove(enPassant);
+
+        json = gson.toJson(original);
+        copy = gson.fromJson(json, ChessGame.class);
+        assert(copy.equals(original));
+        assert(copy.getPossibleEnPassant().equals(original.getPossibleEnPassant()));
+        System.out.println(original.getBoard());
+        System.out.println(json);
     }
 }

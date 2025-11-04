@@ -340,10 +340,7 @@ public class ChessGame {
 
     /**
      * Checks if a move that was just made (or about to be made)
-     * makes it so that the team can no longer castle,
-     * or in other words it checks if the king is moving or
-     * one of the rooks. Fun stuff. I should probably write these
-     * for more of my private helper methods, at least to stay organized
+     * makes it so that the team can no longer castle
      *
      * @param move the move being performed
      */
@@ -379,6 +376,7 @@ public class ChessGame {
         }
     }
 
+    public Collection<ChessMove> getPossibleEnPassant() { return possibleEnPassant; }
 
     /**
      * Determines if the given team is in check
