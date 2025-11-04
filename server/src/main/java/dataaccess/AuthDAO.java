@@ -12,35 +12,7 @@ import java.util.Objects;
 public class AuthDAO {
 
     public AuthDAO() throws DataAccessException {
-        configureDatabase();
-    }
-
-    private final String[] createStatements = {
-        """
-        CREATE TABLE IF NOT EXISTS `auths` (
-            `id` INT NOT NULL AUTO_INCREMENT,
-            `authToken` VARCHAR(256) NOT NULL,
-            `username` VARCHAR(100),
-            PRIMARY KEY (`id`),
-            FOREIGN KEY (`username`) REFERENCES `users`(`username`)
-                ON DELETE CASCADE
-                ON UPDATE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-        """
-    };
-
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (java.sql.SQLException ex) {
-            throw new DataAccessException("Error: Unable to configure database");
-        }
+        DatabaseGenerator.generateTables();
     }
 
 
