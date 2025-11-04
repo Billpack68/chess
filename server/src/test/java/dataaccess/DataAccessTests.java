@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 import service.AuthService;
-import service.MissingDataException;
 
 import java.sql.SQLException;
 import java.util.Objects;
@@ -22,7 +21,7 @@ public class DataAccessTests {
     private GameDAO gameDAO;
 
     @BeforeEach
-    void setUp() throws ResponseException, DataAccessException {
+    void setUp() throws DataAccessException {
         userDAO = new UserDAO();
         authDAO = new AuthDAO();
         gameDAO = new GameDAO();
@@ -33,7 +32,7 @@ public class DataAccessTests {
 
     //AddUser+
     @Test
-    void TestAddUserPositive() throws SQLException, DataAccessException {
+    void testAddUserPositive() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
         UserData user = userDAO.getUser("username");
@@ -44,7 +43,7 @@ public class DataAccessTests {
 
     //AddUser-
     @Test
-    void TestAddUserUsernameTaken() throws SQLException, DataAccessException {
+    void testAddUserUsernameTaken() throws DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
         UserData sameUsername = new UserData("username", "password2", "email2");
@@ -55,7 +54,7 @@ public class DataAccessTests {
 
     //GetUser+
     @Test
-    void TestGetUserPositive() throws SQLException, DataAccessException {
+    void testGetUserPositive() throws DataAccessException {
         UserData newUser = new UserData("fancyUsername", "password", "email");
         userDAO.addUserData(newUser);
         UserData user = userDAO.getUser("fancyUsername");
@@ -64,7 +63,7 @@ public class DataAccessTests {
 
     //GetUser-
     @Test
-    void TestGetUserInvalidUsername() throws SQLException, DataAccessException {
+    void testGetUserInvalidUsername() throws DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
         assertNull(userDAO.getUser("differentUsername"));
@@ -72,7 +71,7 @@ public class DataAccessTests {
 
     //DeleteUsers+
     @Test
-    void TestDeleteUserData() throws SQLException, DataAccessException {
+    void testDeleteUserData() throws DataAccessException {
         UserData newUser = new UserData("fancyUsername", "password", "email");
         userDAO.addUserData(newUser);
         userDAO.deleteUserData();
@@ -80,7 +79,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestAddAuthData() throws SQLException, DataAccessException {
+    void testAddAuthData() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
 
@@ -93,7 +92,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestAddAuthDataMissingData() {
+    void testAddAuthDataMissingData() {
         AuthData badData = new AuthData(null, "username");
         assertThrows(DataAccessException.class, () -> {
             authDAO.addAuthData(badData);
@@ -101,7 +100,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestGetAuthData() throws SQLException, DataAccessException {
+    void testGetAuthData() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
         AuthService authService = new AuthService(authDAO);
@@ -110,7 +109,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestGetAuthDataBad() throws SQLException, DataAccessException {
+    void testGetAuthDataBad() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
         AuthService authService = new AuthService(authDAO);
@@ -119,7 +118,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestDeleteAuthDataByAuthDataPositive() throws SQLException, DataAccessException {
+    void testDeleteAuthDataByAuthDataPositive() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
 
@@ -134,7 +133,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestDeleteAuthDataByAuthDataNegative() throws SQLException, DataAccessException {
+    void testDeleteAuthDataByAuthDataNegative() throws SQLException, DataAccessException {
         UserData newUser = new UserData("username", "password", "email");
         userDAO.addUserData(newUser);
 
@@ -149,7 +148,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestDeleteAllAuthData() throws SQLException, DataAccessException {
+    void testDeleteAllAuthData() throws SQLException, DataAccessException {
         UserData newUser1 = new UserData("username1", "password", "email1");
         UserData newUser2 = new UserData("username2", "password", "email2");
         UserData newUser3 = new UserData("username3", "password", "email3");
@@ -225,7 +224,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestAddGame() throws SQLException, DataAccessException {
+    void testAddGame() throws DataAccessException {
         GameData newGameData = new GameData(null, null, null, "gameName",
                 new ChessGame());
         GameData newGameData2 = new GameData(null, null, null, "gameName",
@@ -239,7 +238,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestAddGameInvalidUsername() throws SQLException, DataAccessException {
+    void testAddGameInvalidUsername() {
         GameData newGameData = new GameData(null, "fakeUsername", null, "gameName",
                 new ChessGame());
         assertThrows(DataAccessException.class, () -> {
@@ -248,7 +247,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestFindGameDataByID() throws DataAccessException {
+    void testFindGameDataByID() throws DataAccessException {
         GameData newGameData = new GameData(null, null, null, "gameName",
                 new ChessGame());
         int gameID1 = gameDAO.addGameData(newGameData);
@@ -257,7 +256,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestFindGameDataByIDNegative() throws DataAccessException {
+    void testFindGameDataByIDNegative() throws DataAccessException {
         GameData newGameData = new GameData(null, null, null, "gameName",
                 new ChessGame());
         int gameID1 = gameDAO.addGameData(newGameData);
@@ -266,7 +265,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestGetGames() throws DataAccessException {
+    void testGetGames() throws DataAccessException {
         GameData newGameData = new GameData(null, null, null, "gameName",
                 new ChessGame());
         GameData newGameData2 = new GameData(null, null, null, "gameName2",
@@ -277,13 +276,13 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestGetGamesNegative() throws DataAccessException {
+    void testGetGamesNegative() throws DataAccessException {
         // No games added yet
         assert(gameDAO.getGames().isEmpty());
     }
 
     @Test
-    void TestUpdateGamePositive() throws DataAccessException {
+    void testUpdateGamePositive() throws DataAccessException {
         userDAO.addUserData(new UserData("white", "pw", "email"));
         userDAO.addUserData(new UserData("black", "pw", "email2"));
         GameData original = new GameData(null, null, null, "gameName",
@@ -298,7 +297,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestupdateGameInvalidUsername() throws DataAccessException {
+    void testUpdateGameInvalidUsername() throws DataAccessException {
         GameData original = new GameData(null, null, null, "gameName",
                 new ChessGame());
         int gameID = gameDAO.addGameData(original);
@@ -310,7 +309,7 @@ public class DataAccessTests {
     }
 
     @Test
-    void TestDeleteGameData() throws DataAccessException {
+    void testDeleteGameData() throws DataAccessException {
         GameData newGameData = new GameData(null, null, null, "gameName",
                 new ChessGame());
         GameData newGameData2 = new GameData(null, null, null, "gameName2",
@@ -321,6 +320,4 @@ public class DataAccessTests {
         assertNull(gameDAO.findGameDataByID(id1));
         assertNull(gameDAO.findGameDataByID(id2));
     }
-
-
 }

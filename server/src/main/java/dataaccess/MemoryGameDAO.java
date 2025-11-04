@@ -10,7 +10,7 @@ import java.util.Set;
 public class MemoryGameDAO extends GameDAO {
     private final Collection<GameData> gameData;
 
-    public MemoryGameDAO() throws ResponseException, DataAccessException {
+    public MemoryGameDAO() throws DataAccessException {
         this.gameData = new HashSet<>();
     }
 
@@ -30,10 +30,6 @@ public class MemoryGameDAO extends GameDAO {
             }
         }
         return max + 1;
-    }
-
-    public void removeGameData(GameData searchData) {
-        gameData.remove(searchData);
     }
 
     public void updateGame(GameData oldData, GameData newData) {

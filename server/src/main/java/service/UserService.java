@@ -24,7 +24,8 @@ public class UserService {
         userDAO.addUserData(userData);
     }
 
-    public void loginUser(String username, String password) throws InvalidCredentialsException, SQLException, DataAccessException {
+    public void loginUser(String username, String password) throws InvalidCredentialsException,
+            SQLException, DataAccessException {
         UserData existingUser = getUserByUsername(username);
         if (existingUser == null || !BCrypt.checkpw(password, existingUser.password())) {
             throw new InvalidCredentialsException("Error: unauthorized");

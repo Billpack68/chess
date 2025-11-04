@@ -12,7 +12,7 @@ import static org.mindrot.jbcrypt.BCrypt.gensalt;
 public class MemoryUserDAO extends UserDAO {
     private final Set<UserData> userData;
 
-    public MemoryUserDAO() throws DataAccessException, ResponseException {
+    public MemoryUserDAO() throws DataAccessException {
         this.userData = new HashSet<>();
     }
 

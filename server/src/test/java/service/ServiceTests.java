@@ -25,7 +25,7 @@ public class ServiceTests {
             MemoryGameDAO gameDAO = new MemoryGameDAO();
             GameService gameService = new GameService(gameDAO);
             service = new Service(authService, gameService, userService);
-        } catch (ResponseException | DataAccessException e) {
+        } catch (DataAccessException e) {
             System.out.println("Why?");
         }
     }

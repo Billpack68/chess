@@ -31,7 +31,8 @@ public class Service {
         return new RegisterResult(userAuth.username(), userAuth.authToken());
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws MissingDataException, InvalidCredentialsException, SQLException, DataAccessException {
+    public LoginResult login(LoginRequest loginRequest) throws MissingDataException,
+            InvalidCredentialsException, SQLException, DataAccessException {
         String username = loginRequest.username();
         String password = loginRequest.password();
         if (username == null || password == null) {
@@ -42,14 +43,16 @@ public class Service {
         return new LoginResult(userAuth.username(), userAuth.authToken());
     }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) throws InvalidAuthTokenException, SQLException, DataAccessException {
+    public LogoutResult logout(LogoutRequest logoutRequest) throws InvalidAuthTokenException,
+            SQLException, DataAccessException {
         String authToken = logoutRequest.authToken();
         AuthData authData = authService.getAuth(authToken);
         authService.deleteAuthToken(authData.authToken());
         return new LogoutResult();
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthTokenException, SQLException, DataAccessException {
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthTokenException,
+            SQLException, DataAccessException {
         String authToken = listGamesRequest.authToken();
         AuthData authData = authService.getAuth(authToken);
         return new ListGamesResult(gameService.getGames());

@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class AuthDAO {
 
-    public AuthDAO() throws ResponseException, DataAccessException {
+    public AuthDAO() throws DataAccessException {
         configureDatabase();
     }
 
@@ -30,7 +30,7 @@ public class AuthDAO {
     };
 
 
-    private void configureDatabase() throws ResponseException, DataAccessException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -39,7 +39,7 @@ public class AuthDAO {
                 }
             }
         } catch (java.sql.SQLException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, String.format("Error: Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException("Error: Unable to configure database");
         }
     }
 

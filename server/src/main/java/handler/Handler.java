@@ -18,7 +18,7 @@ public class Handler {
     private final Service service;
     private Gson serializer;
 
-    public Handler() throws ResponseException, DataAccessException {
+    public Handler() throws DataAccessException {
         this(new MemoryUserDAO(), new MemoryAuthDAO(), new MemoryGameDAO());
     }
 

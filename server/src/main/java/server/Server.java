@@ -17,17 +17,15 @@ public class Server {
         if (test) {
             try {
                 tempHandler = new Handler();
-            } catch(ResponseException | DataAccessException ex) {
+            } catch(DataAccessException ex) {
                 System.err.println("Failed to initialize database or DAOs (for some reason): " + ex.getMessage());
-                ex.printStackTrace();
                 System.exit(1);
             }
         } else {
             try {
                 tempHandler = new Handler(new UserDAO(), new AuthDAO(), new GameDAO());
-            } catch(ResponseException | DataAccessException ex) {
+            } catch(DataAccessException ex) {
                 System.err.println("Failed to initialize database or DAOs: " + ex.getMessage());
-                ex.printStackTrace();
                 System.exit(1);
             }
         }
