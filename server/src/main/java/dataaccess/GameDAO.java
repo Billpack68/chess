@@ -1,15 +1,22 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import kotlin.NotImplementedError;
+import model.AuthData;
 import model.GameData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 
 public class GameDAO {
 
+    private Gson gson;
+
     public GameDAO() throws ResponseException, DataAccessException {
         configureDatabase();
+        gson = new Gson();
     }
 
     private final String[] createStatements = {
@@ -46,12 +53,45 @@ public class GameDAO {
     }
 
 
-    public void addGameData(GameData newGameData) {
-        throw new NotImplementedError();
+    public int addGameData(GameData newGameData) throws DataAccessException {
+        String sql = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?);";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            String whiteUsername = newGameData.whiteUsername();
+            String blackUsername = newGameData.blackUsername();
+            String gameName = newGameData.gameName();
+            String gameJSON = gson.toJson(newGameData.game());
+
+            preparedStatement.setString(1, whiteUsername);
+            preparedStatement.setString(2, blackUsername);
+            preparedStatement.setString(3, gameName);
+            preparedStatement.setString(4, gameJSON);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new DataAccessException("Failed to insert game — no rows affected.");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
-    public int getNextGameID() {
-        throw new NotImplementedError();
+    public int getNextGameID() throws DataAccessException, SQLException {
+        String sql = "SELECT MAX(id) FROM games";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql);
+             var rs = preparedStatement.executeQuery()) {
+
+            int maxId = 0;
+            if (rs.next()) {
+                maxId = rs.getInt(1);
+            }
+            return maxId + 1;
+        }
     }
 
     public void removeGameData(GameData searchData) {
@@ -66,7 +106,17 @@ public class GameDAO {
         throw new NotImplementedError();
     }
 
-    public void deleteGameData() {
-        throw new NotImplementedError();
+    public void deleteGameData() throws DataAccessException {
+        System.out.println("Deleting game database");
+        String sql = "DELETE FROM games;";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to clear games table", e);
+        }
     }
 }

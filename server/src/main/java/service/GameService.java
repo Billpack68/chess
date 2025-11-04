@@ -1,9 +1,11 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -24,7 +26,7 @@ public class GameService {
 
     public Collection<GameData> getGames() { return gameDAO.getGames(); }
 
-    public void joinGame(GameData gameData, String teamColor, String username) {
+    public void joinGame(GameData gameData, String teamColor, String username) throws DataAccessException {
         gameDAO.removeGameData(gameData);
         GameData newGameData;
         if (Objects.equals(teamColor, "WHITE")) {
@@ -37,7 +39,7 @@ public class GameService {
         gameDAO.addGameData(newGameData);
     }
 
-    public int createGame(String gameName) {
+    public int createGame(String gameName) throws SQLException, DataAccessException {
         int newGameID = gameDAO.getNextGameID();
         ChessGame newChessGame = new ChessGame();
         GameData newGame = new GameData(newGameID, null, null, gameName, newChessGame);
@@ -45,7 +47,7 @@ public class GameService {
         return newGameID;
     }
 
-    public void deleteGameData() {
+    public void deleteGameData() throws DataAccessException {
         gameDAO.deleteGameData();
     }
 }

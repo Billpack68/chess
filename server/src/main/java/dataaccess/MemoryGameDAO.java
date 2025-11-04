@@ -14,12 +14,20 @@ public class MemoryGameDAO extends GameDAO {
         this.gameData = new HashSet<>();
     }
 
-    public void addGameData(GameData newGameData) {
+    public int addGameData(GameData newGameData) {
+        int newID = getNextGameID();
+        newGameData.setNew
         gameData.add(newGameData);
     }
 
     public int getNextGameID() {
-        return gameData.size() + 1;
+        int max = 0;
+        for (GameData data : gameData) {
+            if (data.gameID() > max) {
+                max = data.gameID();
+            }
+        }
+        return max + 1;
     }
 
     public void removeGameData(GameData searchData) {

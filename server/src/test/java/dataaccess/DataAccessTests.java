@@ -28,6 +28,7 @@ public class DataAccessTests {
         gameDAO = new GameDAO();
         userDAO.deleteUserData();
         authDAO.deleteAuthData();
+        gameDAO.deleteGameData();
     }
 
     //AddUser+
@@ -221,5 +222,37 @@ public class DataAccessTests {
         assert(copy.getPossibleEnPassant().equals(original.getPossibleEnPassant()));
         System.out.println(original.getBoard());
         System.out.println(json);
+    }
+
+    @Test
+    void TestAddGame() throws SQLException, DataAccessException {
+        int nextGameID = gameDAO.getNextGameID();
+        GameData newGameData = new GameData(nextGameID, null, null, "gameName",
+                new ChessGame());
+        gameDAO.addGameData(newGameData);
+        assert(gameDAO.getNextGameID() == 2);
+    }
+
+    @Test
+    void TestAddGameInvalidUsername() throws SQLException, DataAccessException {
+        int nextGameID = gameDAO.getNextGameID();
+        GameData newGameData = new GameData(nextGameID, "fakeUsername", null, "gameName",
+                new ChessGame());
+        assertThrows(DataAccessException.class, () -> {
+            gameDAO.addGameData(newGameData);
+        });
+    }
+
+    @Test
+    void TestGetNextGameID() throws DataAccessException, SQLException {
+        GameData newGameData = new GameData(1, null, null, "gameName",
+                new ChessGame());
+        GameData newGameData2 = new GameData(2, null, null, "gameName",
+                new ChessGame());
+        gameDAO.addGameData(newGameData);
+        int firstNextGameID = gameDAO.getNextGameID();
+        gameDAO.addGameData(newGameData2);
+        int nextGameID = gameDAO.getNextGameID();
+        assert(nextGameID == 3);
     }
 }

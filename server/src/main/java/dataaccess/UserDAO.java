@@ -41,8 +41,6 @@ public class UserDAO {
         }
     }
 
-// TODO: Write a unit test and test this method
-
     public UserData addUserData(UserData newUserData) throws DataAccessException, SQLException {
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
 
