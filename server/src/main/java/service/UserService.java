@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.Objects;
@@ -25,7 +26,7 @@ public class UserService {
 
     public void loginUser(String username, String password) throws InvalidCredentialsException, SQLException, DataAccessException {
         UserData existingUser = getUserByUsername(username);
-        if (existingUser == null || !Objects.equals(existingUser.password(), password)) {
+        if (existingUser == null || !BCrypt.checkpw(password, existingUser.password())) {
             throw new InvalidCredentialsException("Error: unauthorized");
         }
     }

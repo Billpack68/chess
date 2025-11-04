@@ -232,6 +232,7 @@ public class DataAccessTests {
                 new ChessGame());
         int gameID1 = gameDAO.addGameData(newGameData);
         int gameID2 = gameDAO.addGameData(newGameData2);
+        assert(gameID2 > 1);
     }
 
     @Test
@@ -245,11 +246,11 @@ public class DataAccessTests {
 
     @Test
     void TestGetNextGameID() throws DataAccessException, SQLException {
-        GameData newGameData = new GameData(1, null, null, "gameName",
+        GameData newGameData = new GameData(null, null, null, "gameName",
                 new ChessGame());
-        GameData newGameData2 = new GameData(2, null, null, "gameName",
+        GameData newGameData2 = new GameData(null, null, null, "gameName",
                 new ChessGame());
-        gameDAO.addGameData(newGameData);
-        gameDAO.addGameData(newGameData2);
+        int gameID1 = gameDAO.addGameData(newGameData);
+        int gameID2 = gameDAO.addGameData(newGameData2);
     }
 }

@@ -107,7 +107,6 @@ public class GameDAO {
     }
 
     public void deleteGameData() throws DataAccessException {
-        System.out.println("Deleting game database");
         String sql = "DELETE FROM games;";
 
         try (var conn = DatabaseManager.getConnection();
