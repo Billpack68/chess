@@ -31,13 +31,13 @@ public class ServerFacade {
     }
 
     public LogoutResult logout(LogoutRequest request) {
-        var httpRequest = buildRequest("DELETE", "/session", null, request.authToken());
+        var httpRequest = buildRequest("DELETE", "/session", request, request.authToken());
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, LogoutResult.class);
     }
 
     public ListGamesResult listGames(ListGamesRequest request) {
-        var httpRequest = buildRequest("GET", "/game", null, request.authToken());
+        var httpRequest = buildRequest("GET", "/game", request, request.authToken());
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, ListGamesResult.class);
     }

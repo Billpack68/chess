@@ -87,7 +87,7 @@ public class Handler {
             ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
             ListGamesResult result = service.listGames(request);
             Collection<ListGamesData> formattedData = new HashSet<>();
-            for (GameData data : result.gameData()) {
+            for (GameData data : result.games()) {
                 formattedData.add(new ListGamesData(data.gameID(), data.gameName(),
                         data.whiteUsername(), data.blackUsername()));
             }

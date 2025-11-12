@@ -169,7 +169,7 @@ public class ServiceTests {
         service.createGame(dummyCreate);
         ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
         ListGamesResult listGamesResult = service.listGames(listGamesRequest);
-        Collection<GameData> gameData = listGamesResult.gameData();
+        Collection<GameData> gameData = listGamesResult.games();
         assert(gameData.size() == 3);
         GameData game1 = new GameData(1, null, null,
                 "GAMENAME", new ChessGame());
@@ -212,7 +212,7 @@ public class ServiceTests {
         ListGamesResult listResult = service.listGames(new ListGamesRequest(authToken));
         GameData game1 = new GameData(1, "username", null,
                 "GAMENAME", new ChessGame());
-        assert(listResult.gameData().contains(game1));
+        assert(listResult.games().contains(game1));
     }
 
     @Test
