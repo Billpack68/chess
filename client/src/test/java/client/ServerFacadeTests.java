@@ -68,4 +68,24 @@ public class ServerFacadeTests {
         assert(Objects.equals(result.username(), "username") && result.authToken() != null);
     }
 
+    @Test
+    public void testLoginMissingPassword() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", null);
+        assertThrows(ServerFacadeException.class, () -> {
+            serverFacade.login(request2);
+        });
+    }
+
+    @Test
+    public void testLoginIncorrectPassword() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "passwork");
+        assertThrows(ServerFacadeException.class, () -> {
+            serverFacade.login(request2);
+        });
+    }
+
 }
