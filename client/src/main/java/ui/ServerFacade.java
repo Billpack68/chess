@@ -19,7 +19,9 @@ public class ServerFacade {
     }
 
     public RegisterResult register(RegisterRequest request) {
-        return null;
+        var httpRequest = buildRequest("POST", "/user", request);
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest request) {
@@ -77,10 +79,10 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw new ServerFacadeException("Error: unable to communicate with server");
+                throw new ServerFacadeException("Error " + status);
             }
 
-            throw new ServerFacadeException("Error: unable to communicate with server");
+            throw new ServerFacadeException("Error " + status);
         }
 
         if (responseClass != null) {
