@@ -51,4 +51,21 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
+    public void testRegisterUsernameNoEmail() {
+        RegisterRequest request = new RegisterRequest("username", "password", null);
+        assertThrows(ServerFacadeException.class, () -> {
+            serverFacade.register(request);
+        });
+    }
+
+    @Test
+    public void testLoginUserPositive() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        LoginResult result = serverFacade.login(request2);
+        assert(Objects.equals(result.username(), "username") && result.authToken() != null);
+    }
+
 }
