@@ -45,7 +45,9 @@ public class ServerFacade {
     }
 
     public ClearDatabaseResult clearDB(ClearDatabaseRequest request) {
-        return null;
+        var httpRequest = buildRequest("DELETE", "/db", request);
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, ClearDatabaseResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {

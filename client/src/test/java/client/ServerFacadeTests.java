@@ -24,6 +24,11 @@ public class ServerFacadeTests {
         serverFacade = new ServerFacade("http://localhost:" + port);
     }
 
+    @BeforeEach
+    void cleanDatabase() {
+        serverFacade.clearDB(new ClearDatabaseRequest());
+    }
+
     @AfterAll
     static void stopServer() {
         server.stop();
