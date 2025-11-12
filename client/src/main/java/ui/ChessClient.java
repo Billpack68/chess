@@ -12,6 +12,7 @@ public class ChessClient {
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
     private Map<Integer, Integer> IDConverter = new HashMap<>();
+    private Map<Integer, Integer> IDUnConverter = new HashMap<>();
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -216,8 +217,11 @@ public class ChessClient {
                 if (!IDConverter.containsKey(data.gameID())) {
                     IDConverter.put(data.gameID(), IDConverter.size()+1);
                 }
+                if (!IDUnConverter.containsKey(IDConverter.get(data.gameID()))){
+                    IDUnConverter.put(IDUnConverter.size()+1, data.gameID());
+                }
                 StringBuilder gameString = new StringBuilder("\n");
-                gameString.append(IDConverter.get(data.gameID())).append(" |log ").append(data.gameName());
+                gameString.append(IDConverter.get(data.gameID())).append(" | ").append(data.gameName());
                 gameString.append(" | White: ");
                 if (data.whiteUsername() == null) {
                     gameString.append("available");
