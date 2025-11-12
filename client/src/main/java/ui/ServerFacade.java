@@ -85,19 +85,14 @@ public class ServerFacade {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ServerFacadeException("Error: unable to communicate with server");
+            throw new ServerFacadeException("Error: unable to communicate with server", 500);
         }
     }
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ServerFacadeException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
-            var body = response.body();
-            if (body != null) {
-                throw new ServerFacadeException("Error " + status);
-            }
-
-            throw new ServerFacadeException("Error " + status);
+            throw new ServerFacadeException("Error", status);
         }
 
         if (responseClass != null) {
