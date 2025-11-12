@@ -19,19 +19,21 @@ public class ServerFacade {
     }
 
     public RegisterResult register(RegisterRequest request) {
-        var httpRequest = buildRequest("POST", "/user", request);
+        var httpRequest = buildRequest("POST", "/user", request, null);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest request) {
-        var httpRequest = buildRequest("POST", "/session", request);
+        var httpRequest = buildRequest("POST", "/session", request, null);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, LoginResult.class);
     }
 
     public LogoutResult logout(LogoutRequest request) {
-        return null;
+        var httpRequest = buildRequest("DELETE", "/session", null, request.authToken());
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, LogoutResult.class);
     }
 
     public ListGamesResult listGames(ListGamesRequest request) {
@@ -47,17 +49,20 @@ public class ServerFacade {
     }
 
     public ClearDatabaseResult clearDB(ClearDatabaseRequest request) {
-        var httpRequest = buildRequest("DELETE", "/db", request);
+        var httpRequest = buildRequest("DELETE", "/db", request, null);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, ClearDatabaseResult.class);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("authorization", authToken);
         }
         return request.build();
     }

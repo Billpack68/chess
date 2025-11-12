@@ -8,6 +8,7 @@ import ui.ServerFacadeException;
 
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -88,4 +89,25 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
+    public void testLogoutPositive() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        LoginResult loginResult = serverFacade.login(request2);
+        LogoutRequest request3 = new LogoutRequest(loginResult.authToken());
+        assertDoesNotThrow(() -> serverFacade.logout(request3));
+    }
+
+    @Test
+    public void testLogoutWrongAuth() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        serverFacade.login(request2);
+        LogoutRequest request3 = new LogoutRequest("fakeAuthToken");
+        assertThrows(ServerFacadeException.class, () -> {
+            serverFacade.logout(request3);
+        });
+    }
 }
