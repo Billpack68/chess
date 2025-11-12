@@ -43,7 +43,7 @@ public class ChessClient {
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch (cmd) {
             case "register" -> register(params);
-//            case "login" -> login(params);
+            case "login" -> login(params);
 //            case "logout" -> logout();
 //            case "list" -> listGames();
 //            case "create" -> createGame(params);
@@ -83,13 +83,12 @@ public class ChessClient {
                 """;
     }
 
-    public String register(String... params) {
+    private String register(String... params) {
         try {
             assertNotSignedIn();
         } catch (Exception e) {
             return e.getMessage();
         }
-
         if (params.length != 3) {
             return "Expected: register [username] [password] [email]";
         } else {
@@ -106,20 +105,32 @@ public class ChessClient {
                 }
             }
 
-            try {
-                LoginRequest request = new LoginRequest (params[0], params[1]);
-                authToken = server.login(request).authToken();
-            } catch (ServerFacadeException e) {
-                if (Objects.equals(e.getMessage(), "Error: 400")) {
-                    return "Expected: login [username] [password]";
-                } else if (Objects.equals(e.getMessage(), "Error: 401")) {
-                    return "Username or password invalid";
-                } else {
-                    return "Oops! Looks like something went wrong with logging in. Can you try again?";
-                }
+            return login(params[0], params[1]);
+        }
+    }
+
+    private String login(String... params) {
+        try {
+            assertNotSignedIn();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        if (params.length != 2) {
+            return "Expected: login [username] [password]";
+        }
+        try {
+            LoginRequest request = new LoginRequest (params[0], params[1]);
+            authToken = server.login(request).authToken();
+        } catch (ServerFacadeException e) {
+            if (e.getId() == 400) {
+                return "Expected: login [username] [password]";
+            } else if (e.getId() == 401) {
+                return "Username or password invalid";
+            } else {
+                return "Oops! Looks like something went wrong with logging in. Can you try again?";
             }
         }
-        return "Registered and logged in as " + params[0];
+        return "Logged in as " + params[0] + ". Type `help` to see a list of commands.";
     }
 
     private void assertSignedIn() throws Exception {
