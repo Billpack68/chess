@@ -47,9 +47,9 @@ public class ChessClient {
             case "login" -> login(params);
             case "logout" -> logout(params);
 //            case "list" -> listGames(params);
-//            case "create" -> createGame(params);
+            case "create" -> createGame(params);
 //            case "join" -> joinGame(params);
-//            case "clear" -> clearDB(params);
+//            case "observe" -> observe(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -85,8 +85,6 @@ public class ChessClient {
                     Creates a new game under the name that you specify (no spaces)
                 join [game-id] [color]
                     Join a game by specifying the game number
-                clear
-                    Clear the database
                 help
                     Shows a list of commands you can do
                 quit
@@ -161,11 +159,35 @@ public class ChessClient {
             if (e.getId() == 401) {
                 return "Looks like you aren't authorized to do that. Please try again.";
             } else {
-                return "Oops! Looks like something went wrong with logging in. Can you try again?";
+                return "Oops! Looks like something went wrong with logging out. Can you try again?";
             }
         }
         state = State.SIGNEDOUT;
         return "Successfully logged out!";
+    }
+
+    private String createGame(String... params) {
+        try {
+            assertSignedIn();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        if (params.length != 1) {
+            return "Expected: create [game-name]";
+        }
+        try {
+            CreateGameRequest request = new CreateGameRequest(authToken, params[0]);
+            server.createGame(request);
+        } catch (ServerFacadeException e) {
+            if (e.getId() == 400) {
+                return "Expected: create [game-name]";
+            } else if (e.getId() == 401) {
+                return "Looks like you aren't authorized to do that. Please try again.";
+            } else {
+                return "Oops! Looks like something went wrong with logging out. Can you try again?";
+            }
+        }
+        return "Successfully created game! Use `list` to see the details of that game.";
     }
 
     private void assertSignedIn() throws Exception {
