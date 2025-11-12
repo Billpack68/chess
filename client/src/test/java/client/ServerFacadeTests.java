@@ -176,4 +176,19 @@ public class ServerFacadeTests {
             serverFacade.listGames(request4);
         });
     }
+
+    @Test
+    public void testJoinGamePositive() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        LoginResult loginResult = serverFacade.login(request2);
+        CreateGameRequest request3 = new CreateGameRequest(loginResult.authToken(), "testGame");
+        CreateGameResult createGameResult = serverFacade.createGame(request3);
+        ListGamesRequest request4 = new ListGamesRequest(loginResult.authToken());
+        ListGamesResult listGamesResult = serverFacade.listGames(request4);
+        JoinGameRequest request5 = new JoinGameRequest(loginResult.authToken(), "WHITE",
+                createGameResult.gameID());
+        assertDoesNotThrow(() -> serverFacade.joinGame(request5));
+    }
 }
