@@ -25,7 +25,9 @@ public class ServerFacade {
     }
 
     public LoginResult login(LoginRequest request) {
-        return null;
+        var httpRequest = buildRequest("POST", "/session", request);
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, LoginResult.class);
     }
 
     public LogoutResult logout(LogoutRequest request) {
