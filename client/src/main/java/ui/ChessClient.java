@@ -49,7 +49,7 @@ public class ChessClient {
             case "logout" -> logout(params);
             case "list" -> listGames(params);
             case "create" -> createGame(params);
-//            case "join" -> joinGame(params);
+            case "join" -> joinGame(params);
 //            case "observe" -> observe(params);
             case "quit" -> "quit";
             default -> help();
@@ -58,10 +58,12 @@ public class ChessClient {
     }
 
     private void printPrompt() {
-        if (clientName != null) {
+        if (state == State.SIGNEDIN) {
             System.out.print("\n" + clientName + " >>> ");
-        } else {
+        } else if (state == State.SIGNEDOUT) {
             System.out.print("\n>>> ");
+        } else if (state == State.INGAME) {
+            System.out.print("\nIn game as " + clientName + " >>> ");
         }
     }
 
@@ -247,6 +249,47 @@ public class ChessClient {
             }
         }
         return outString.toString();
+    }
+
+    private String joinGame(String... params) {
+        try {
+            assertSignedIn();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        if (params.length != 2) {
+            return "Expected: join [game-id] [color]";
+        }
+        listGames(); // To update the list of Game IDs, in case they created a game and then run this command
+        Integer gameID;
+        try {
+            gameID = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            return "Please provide a number for the gameID";
+        }
+        String playerColor = params[1].toUpperCase();
+        if (!IDUnConverter.containsKey(gameID)) {
+            return "Looks like that game doesn't exist. Please try again.";
+        }
+        if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
+            return "Please input `white` or `black` for the color";
+        }
+        try {
+            JoinGameRequest request = new JoinGameRequest(authToken, playerColor, IDUnConverter.get(gameID));
+            JoinGameResult result = server.joinGame(request);
+        } catch (ServerFacadeException e) {
+            if (e.getId() == 400) {
+                return "Expected: join [game-id] [color]";
+            } else if (e.getId() == 401) {
+                return "Looks like you aren't authorized to do that. Please try logging out and back in.";
+            } else if (e.getId() ==  403) {
+                return "That color is taken. Please try a different color or a different game";
+            } else {
+                return "Oops! Looks like something went wrong with logging out. Can you try again?";
+            }
+        }
+        state = State.INGAME;
+        return "Joining game...";
     }
 
     private void assertSignedIn() throws Exception {
