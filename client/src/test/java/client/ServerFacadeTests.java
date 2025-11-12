@@ -162,4 +162,18 @@ public class ServerFacadeTests {
         listGamesResult = serverFacade.listGames(request4);
         assert(listGamesResult.games().size() == 2);
     }
+
+    @Test
+    public void testListGamesInvalidAuth() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        LoginResult loginResult = serverFacade.login(request2);
+        CreateGameRequest request3 = new CreateGameRequest(loginResult.authToken(), "testGame");
+        serverFacade.createGame(request3);
+        ListGamesRequest request4 = new ListGamesRequest("badAuth");
+        assertThrows(ServerFacadeException.class, () -> {
+            serverFacade.listGames(request4);
+        });
+    }
 }
