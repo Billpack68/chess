@@ -1,6 +1,7 @@
 package ui;
 
 import model.*;
+import server.Server;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -44,7 +45,7 @@ public class ChessClient {
         return switch (cmd) {
             case "register" -> register(params);
             case "login" -> login(params);
-//            case "logout" -> logout();
+            case "logout" -> logout(params);
 //            case "list" -> listGames();
 //            case "create" -> createGame(params);
 //            case "join" -> joinGame(params);
@@ -64,13 +65,13 @@ public class ChessClient {
             return """
                     Commands:
                     - register [username] [password] [email]
-                    (Create a new account and log in to it)
+                        (Create a new account and log in to it)
                     - login [username] [password]
-                    (Login to an existing account)
+                        (Login to an existing account)
                     - help
-                    (Shows a list of commands you can do)
+                        (Shows a list of commands you can do)
                     - quit
-                    (exits the program)
+                        (exits the program)
                     """;
         }
         return """
@@ -130,7 +131,31 @@ public class ChessClient {
                 return "Oops! Looks like something went wrong with logging in. Can you try again?";
             }
         }
+        state = State.SIGNEDIN;
         return "Logged in as " + params[0] + ". Type `help` to see a list of commands.";
+    }
+
+    private String logout(String... params) {
+        try {
+            assertSignedIn();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        if (params.length != 0) {
+            return "Too many arguments. Please just type `logout`";
+        }
+        try {
+            LogoutRequest request = new LogoutRequest(authToken);
+            server.logout(request);
+        } catch (ServerFacadeException e) {
+            if (e.getId() == 401) {
+                return "Looks like you aren't authorized to do that. Please try again.";
+            } else {
+                return "Oops! Looks like something went wrong with logging in. Can you try again?";
+            }
+        }
+        state = State.SIGNEDOUT;
+        return "Successfully logged out!";
     }
 
     private void assertSignedIn() throws Exception {
