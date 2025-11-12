@@ -37,11 +37,15 @@ public class ServerFacade {
     }
 
     public ListGamesResult listGames(ListGamesRequest request) {
-        return null;
+        var httpRequest = buildRequest("GET", "/game", null, request.authToken());
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, ListGamesResult.class);
     }
 
     public CreateGameResult createGame(CreateGameRequest request) {
-        return null;
+        var httpRequest = buildRequest("POST", "/game", request, request.authToken());
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, CreateGameResult.class);
     }
 
     public JoinGameResult joinGame(JoinGameRequest request) {

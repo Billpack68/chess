@@ -110,4 +110,40 @@ public class ServerFacadeTests {
             serverFacade.logout(request3);
         });
     }
+
+    @Test
+    public void testCreateGamePositive() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        LoginResult loginResult = serverFacade.login(request2);
+        CreateGameRequest request3 = new CreateGameRequest(loginResult.authToken(), "testGame");
+        CreateGameResult createGameResult = serverFacade.createGame(request3);
+        System.out.println(createGameResult.gameID());
+        assert(createGameResult.gameID() != 0);
+    }
+
+    @Test
+    public void testCreateGameMissingName() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        LoginResult loginResult = serverFacade.login(request2);
+        CreateGameRequest request3 = new CreateGameRequest(loginResult.authToken(), null);
+        assertThrows(ServerFacadeException.class, () -> {
+            serverFacade.createGame(request3);
+        });
+    }
+
+    @Test
+    public void testCreateGameInvalidAuth() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        serverFacade.register(request);
+        LoginRequest request2 = new LoginRequest("username", "password");
+        serverFacade.login(request2);
+        CreateGameRequest request3 = new CreateGameRequest("badAuthToken", "gameName");
+        assertThrows(ServerFacadeException.class, () -> {
+            serverFacade.createGame(request3);
+        });
+    }
 }
