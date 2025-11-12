@@ -18,7 +18,33 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public RegisterResult register(RegisterRequest request) {
+        return null;
+    }
 
+    public LoginResult login(LoginRequest request) {
+        return null;
+    }
+
+    public LogoutResult logout(LogoutRequest request) {
+        return null;
+    }
+
+    public ListGamesResult listGames(ListGamesRequest request) {
+        return null;
+    }
+
+    public CreateGameResult createGame(CreateGameRequest request) {
+        return null;
+    }
+
+    public JoinGameResult joinGame(JoinGameRequest request) {
+        return null;
+    }
+
+    public ClearDatabaseResult clearDB(ClearDatabaseRequest request) {
+        return null;
+    }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
