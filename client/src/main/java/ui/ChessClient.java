@@ -46,10 +46,10 @@ public class ChessClient {
             case "register" -> register(params);
             case "login" -> login(params);
             case "logout" -> logout(params);
-//            case "list" -> listGames();
+//            case "list" -> listGames(params);
 //            case "create" -> createGame(params);
 //            case "join" -> joinGame(params);
-//            case "clear" -> clearDB();
+//            case "clear" -> clearDB(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -64,23 +64,33 @@ public class ChessClient {
         if (state == State.SIGNEDOUT) {
             return """
                     Commands:
-                    - register [username] [password] [email]
-                        (Create a new account and log in to it)
-                    - login [username] [password]
-                        (Login to an existing account)
-                    - help
-                        (Shows a list of commands you can do)
-                    - quit
-                        (exits the program)
+                    register [username] [password] [email]
+                        Create a new account and log in to it
+                    login [username] [password]
+                        Login to an existing account
+                    help
+                        Shows a list of commands you can do
+                    quit
+                        Exits the program
                     """;
         }
+
         return """
-                - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
-                - quit
+                Commands:
+                logout
+                    Logs you out
+                list
+                    Lists the games that you can join
+                create [game-name]
+                    Creates a new game under the name that you specify (no spaces)
+                join [game-id] [color]
+                    Join a game by specifying the game number
+                clear
+                    Clear the database
+                help
+                    Shows a list of commands you can do
+                quit
+                    Exits the program
                 """;
     }
 
