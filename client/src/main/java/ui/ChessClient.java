@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessPiece;
 import model.*;
 import server.Server;
@@ -13,6 +14,8 @@ public class ChessClient {
     private State state = State.SIGNEDOUT;
     private Map<Integer, Integer> IDConverter = new HashMap<>();
     private Map<Integer, Integer> IDUnConverter = new HashMap<>();
+    private BoardPrinter boardPrinter = new BoardPrinter();
+    private Map<Integer, GameData> gameData = new HashMap<>();
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -50,7 +53,7 @@ public class ChessClient {
             case "list" -> listGames(params);
             case "create" -> createGame(params);
             case "join" -> joinGame(params);
-//            case "observe" -> observe(params);
+            case "observe" -> observe(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -59,7 +62,7 @@ public class ChessClient {
 
     private void printPrompt() {
         if (state == State.SIGNEDIN) {
-            System.out.print("\n" + clientName + " >>> ");
+            System.out.print("\nLogged in as " + clientName + " >>> ");
         } else if (state == State.SIGNEDOUT) {
             System.out.print("\n>>> ");
         } else if (state == State.INGAME) {
@@ -218,6 +221,7 @@ public class ChessClient {
             for (GameData data : games) {
                 if (!IDConverter.containsKey(data.gameID())) {
                     IDConverter.put(data.gameID(), IDConverter.size()+1);
+                    gameData.put(IDConverter.size()+1, data);
                 }
                 if (!IDUnConverter.containsKey(IDConverter.get(data.gameID()))){
                     IDUnConverter.put(IDUnConverter.size()+1, data.gameID());
@@ -289,7 +293,43 @@ public class ChessClient {
             }
         }
         state = State.INGAME;
-        return "Joining game...";
+
+        //Filler code for phase 5 - print a default board
+        ChessBoard newBoard = new ChessBoard();
+        newBoard.resetBoard();
+
+        if (playerColor.equals("WHITE")){
+            return boardPrinter.printBoard(newBoard, true);
+        }
+        return boardPrinter.printBoard(newBoard, false);
+    }
+
+    private String observe(String... params) {
+        try {
+            assertSignedIn();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        if (params.length != 1) {
+            return "Expected: observe [game-id]";
+        }
+        Integer gameID;
+        try {
+            gameID = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            return "Please provide a number for the gameID";
+        }
+        state = State.INGAME;
+        listGames(); // update the list of games created in case they created one and haven't called listgames
+        if (!IDUnConverter.containsKey(gameID)) {
+            return "Looks like that game doesn't exist. Please try again.";
+        }
+
+
+        //Filler code for phase 5 - print a default board
+        ChessBoard newBoard = new ChessBoard();
+        newBoard.resetBoard();
+        return boardPrinter.printBoard(newBoard, true);
     }
 
     private void assertSignedIn() throws Exception {
