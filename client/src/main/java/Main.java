@@ -10,16 +10,10 @@ public class Main {
             serverUrl = args[0];
         }
         try {
-            Server server = new Server();
-            server.run(8080);
-
             ChessClient client = new ChessClient(serverUrl);
             client.run();
-
-            server.stop();
-
         } catch (Throwable ex) {
-            System.out.printf("Unable to start server: %s%n", ex.getMessage());
+            System.out.printf("Unable to connect to server: %s%n", ex.getMessage());
         }
     }
 }

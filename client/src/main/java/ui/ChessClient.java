@@ -4,6 +4,8 @@ import chess.ChessBoard;
 import chess.ChessPiece;
 import model.*;
 import server.Server;
+import static ui.EscapeSequences.*;
+
 
 import java.util.*;
 
@@ -22,7 +24,7 @@ public class ChessClient {
     }
 
     public void run() {
-        System.out.println();
+        System.out.println("Welcome to the CS240 Chess client! Here's a list of commands to get you started:");
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
@@ -216,7 +218,8 @@ public class ChessClient {
         try {
             ListGamesRequest request = new ListGamesRequest(authToken);
             ListGamesResult result = server.listGames(request);
-            Collection<GameData> games = result.games();
+            List<GameData> games = new ArrayList<>(result.games());
+            games.sort(Comparator.comparingInt(GameData::gameID));
 
             for (GameData data : games) {
                 if (!IDConverter.containsKey(data.gameID())) {
@@ -269,7 +272,7 @@ public class ChessClient {
         try {
             gameID = Integer.parseInt(params[0]);
         } catch (NumberFormatException e) {
-            return "Please provide a number for the gameID";
+            return "Please provide a number for the gameID (Like `1` or `2`, not `one` or `two`)";
         }
         String playerColor = params[1].toUpperCase();
         if (!IDUnConverter.containsKey(gameID)) {
@@ -319,11 +322,11 @@ public class ChessClient {
         } catch (NumberFormatException e) {
             return "Please provide a number for the gameID";
         }
-        state = State.INGAME;
         listGames(); // update the list of games created in case they created one and haven't called listgames
         if (!IDUnConverter.containsKey(gameID)) {
             return "Looks like that game doesn't exist. Please try again.";
         }
+        state = State.INGAME;
 
 
         //Filler code for phase 5 - print a default board
@@ -335,6 +338,8 @@ public class ChessClient {
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNEDOUT) {
             throw new Exception("You must sign in first");
+        } else if (state == State.INGAME) {
+            throw new Exception("You cannot do that while in a game");
         }
     }
 
