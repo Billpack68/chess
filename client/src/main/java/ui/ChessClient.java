@@ -1,10 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
-import chess.ChessPiece;
 import model.*;
-import server.Server;
-import static ui.EscapeSequences.*;
 
 
 import java.util.*;

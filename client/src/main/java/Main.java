@@ -1,6 +1,3 @@
-import chess.*;
-import server.Server;
-import ui.BoardPrinter;
 import ui.ChessClient;
 
 public class Main {
