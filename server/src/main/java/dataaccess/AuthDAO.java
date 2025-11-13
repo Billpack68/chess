@@ -1,13 +1,8 @@
 package dataaccess;
 
-import kotlin.NotImplementedError;
 import model.AuthData;
-import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Objects;
 
 public class AuthDAO {
 

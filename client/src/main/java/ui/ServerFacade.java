@@ -1,7 +1,8 @@
 package ui;
 
 import com.google.gson.Gson;
-import model.*;
+import requests.*;
+import results.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;

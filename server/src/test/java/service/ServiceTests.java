@@ -1,9 +1,11 @@
 package service;
 import chess.ChessGame;
 import dataaccess.*;
-import model.*;
+import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import requests.*;
+import results.*;
 
 import java.sql.SQLException;
 import java.util.Collection;

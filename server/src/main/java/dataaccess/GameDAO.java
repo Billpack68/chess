@@ -2,12 +2,8 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import kotlin.NotImplementedError;
-import model.AuthData;
 import model.GameData;
-import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;

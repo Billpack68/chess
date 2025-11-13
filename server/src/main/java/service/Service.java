@@ -1,7 +1,11 @@
 package service;
 
 import dataaccess.DataAccessException;
+import model.AuthData;
+import model.GameData;
 import model.*;
+import requests.*;
+import results.*;
 
 import java.sql.SQLException;
 import java.util.Objects;

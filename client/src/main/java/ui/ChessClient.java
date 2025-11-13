@@ -1,7 +1,10 @@
 package ui;
 
 import chess.ChessBoard;
-import model.*;
+import model.GameData;
+import requests.*;
+import results.JoinGameResult;
+import results.ListGamesResult;
 
 
 import java.util.*;
@@ -11,8 +14,8 @@ public class ChessClient {
     private String authToken;
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
-    private Map<Integer, Integer> IDConverter = new HashMap<>();
-    private Map<Integer, Integer> IDUnConverter = new HashMap<>();
+    private Map<Integer, Integer> iDConverter = new HashMap<>();
+    private Map<Integer, Integer> iDUnConverter = new HashMap<>();
     private BoardPrinter boardPrinter = new BoardPrinter();
     private Map<Integer, GameData> gameData = new HashMap<>();
 
@@ -221,15 +224,15 @@ public class ChessClient {
             games.sort(Comparator.comparingInt(GameData::gameID));
 
             for (GameData data : games) {
-                if (!IDConverter.containsKey(data.gameID())) {
-                    IDConverter.put(data.gameID(), IDConverter.size()+1);
-                    gameData.put(IDConverter.size()+1, data);
+                if (!iDConverter.containsKey(data.gameID())) {
+                    iDConverter.put(data.gameID(), iDConverter.size()+1);
+                    gameData.put(iDConverter.size()+1, data);
                 }
-                if (!IDUnConverter.containsKey(IDConverter.get(data.gameID()))){
-                    IDUnConverter.put(IDUnConverter.size()+1, data.gameID());
+                if (!iDUnConverter.containsKey(iDConverter.get(data.gameID()))){
+                    iDUnConverter.put(iDUnConverter.size()+1, data.gameID());
                 }
                 StringBuilder gameString = new StringBuilder("\n");
-                gameString.append(IDConverter.get(data.gameID())).append(" | ").append(data.gameName());
+                gameString.append(iDConverter.get(data.gameID())).append(" | ").append(data.gameName());
                 gameString.append(" | White: ");
                 if (data.whiteUsername() == null) {
                     gameString.append("available");
@@ -274,14 +277,14 @@ public class ChessClient {
             return "Please provide a number for the gameID (Like `1` or `2`, not `one` or `two`)";
         }
         String playerColor = params[1].toUpperCase();
-        if (!IDUnConverter.containsKey(gameID)) {
+        if (!iDUnConverter.containsKey(gameID)) {
             return "Looks like that game doesn't exist. Please try again.";
         }
         if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
             return "Please input `white` or `black` for the color";
         }
         try {
-            JoinGameRequest request = new JoinGameRequest(authToken, playerColor, IDUnConverter.get(gameID));
+            JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
             JoinGameResult result = server.joinGame(request);
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
@@ -322,7 +325,7 @@ public class ChessClient {
             return "Please provide a number for the gameID";
         }
         listGames(); // update the list of games created in case they created one and haven't called listgames
-        if (!IDUnConverter.containsKey(gameID)) {
+        if (!iDUnConverter.containsKey(gameID)) {
             return "Looks like that game doesn't exist. Please try again.";
         }
         state = State.INGAME;

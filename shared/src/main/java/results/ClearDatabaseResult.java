@@ -1,4 +1,4 @@
-package model;
+package results;
 
 public record ClearDatabaseResult() {
 }

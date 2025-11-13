@@ -1,7 +1,11 @@
 package client;
 
-import model.*;
 import org.junit.jupiter.api.*;
+import requests.*;
+import results.CreateGameResult;
+import results.ListGamesResult;
+import results.LoginResult;
+import results.RegisterResult;
 import server.Server;
 import ui.ServerFacade;
 import ui.ServerFacadeException;

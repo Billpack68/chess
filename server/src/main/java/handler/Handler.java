@@ -2,7 +2,9 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import model.*;
+import model.GameData;
+import requests.*;
+import results.*;
 import service.*;
 
 import io.javalin.http.Context;
