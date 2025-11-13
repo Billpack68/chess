@@ -41,6 +41,8 @@ public class ChessClient {
         System.out.println();
     }
 
+    // Test
+
     public String eval(String input) {
         String[] tokens = input.toLowerCase().split(" ");
         String cmd = (tokens.length > 0) ? tokens[0] : "help";
