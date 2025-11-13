@@ -17,7 +17,8 @@ public class UserService {
 
     public void addUser(UserData userData) throws AlreadyTakenException, SQLException, DataAccessException {
         String username = userData.username();
-        if (getUserByUsername(username) != null) {
+        String email = userData.email();
+        if (getUserByUsername(username) != null || getUserByEmail(email) != null) {
             throw new AlreadyTakenException("Error: already taken");
         }
 
@@ -38,6 +39,10 @@ public class UserService {
 
     public UserData getUserByUsername(String username) throws SQLException, DataAccessException {
         return userDAO.getUser(username);
+    }
+
+    public UserData getUserByEmail(String email) throws SQLException, DataAccessException {
+        return userDAO.getUserByEmail(email);
     }
 
     @Override

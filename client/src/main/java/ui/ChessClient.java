@@ -122,7 +122,7 @@ public class ChessClient {
                 if (e.getId() == 400) {
                     return "Expected: register [username] [password] [email]";
                 } else if (e.getId() == 403) {
-                    return "Sorry, that username is already in use";
+                    return "Sorry, that username or email is already in use";
                 } else {
                     return "Oops! Looks like something went wrong with registering. Can you try again?";
                 }

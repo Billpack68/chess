@@ -35,6 +35,15 @@ public class MemoryUserDAO extends UserDAO {
         return null;
     }
 
+    public UserData getUserByEmail(String email) {
+        for (UserData data : userData) {
+            if (Objects.equals(data.email(), email)) {
+                return data;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

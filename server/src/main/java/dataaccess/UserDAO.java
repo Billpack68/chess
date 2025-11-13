@@ -78,4 +78,27 @@ public class UserDAO {
             throw new DataAccessException("Error: unable to add user to table");
         }
     }
+
+    public UserData getUserByEmail(String email) throws DataAccessException {
+        String sql = "SELECT username, password, email FROM users WHERE email = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, email);
+
+            try (var resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String username = resultSet.getString("username");
+                    String password = resultSet.getString("password");
+                    String foundEmail = resultSet.getString("email");
+                    return new UserData(username, password, foundEmail);
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unable to add user to table");
+        }
+    }
 }
