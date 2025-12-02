@@ -41,6 +41,20 @@ public class Server {
         javalin.put("/game", handler::joinGame);
         javalin.delete("/db", handler::clearDB);
 
+        javalin.ws("/connect", ws -> {
+            ws.onConnect(ctx -> {
+                ctx.enableAutomaticPings();
+                System.out.println("WebSocket connected");
+            });
+
+            ws.onMessage(ctx -> {
+                String message = ctx.message();
+                System.out.println("Received: " + message);
+                ctx.send("Server echo: " + message);
+            });
+
+            ws.onClose(ctx -> System.out.println("WebSocket closed"));
+        });
     }
 
     public int run(int desiredPort) {
