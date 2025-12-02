@@ -14,17 +14,6 @@ import java.util.Scanner;
 public class WsClient extends Endpoint {
     public Session session;
 
-    public static void main(String[] args) throws Exception {
-        WsClient client = new WsClient();
-
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Enter a message you want to echo:");
-        while(true) {
-            client.send(scanner.nextLine());
-        }
-    }
-
     public WsClient() throws Exception {
         URI uri = new URI("ws://localhost:8080/connect");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();

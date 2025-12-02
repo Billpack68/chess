@@ -5,6 +5,7 @@ import model.GameData;
 import requests.*;
 import results.JoinGameResult;
 import results.ListGamesResult;
+import websocket.WsClient;
 
 
 import java.util.*;
@@ -18,6 +19,7 @@ public class ChessClient {
     private Map<Integer, Integer> iDUnConverter = new HashMap<>();
     private BoardPrinter boardPrinter = new BoardPrinter();
     private Map<Integer, GameData> gameData = new HashMap<>();
+    private WsClient wsClient;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -43,8 +45,6 @@ public class ChessClient {
         }
         System.out.println();
     }
-
-    // Test
 
     public String eval(String input) {
         String[] tokens = input.toLowerCase().split(" ");
@@ -286,6 +286,7 @@ public class ChessClient {
         try {
             JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
             JoinGameResult result = server.joinGame(request);
+            wsClient = new WsClient();
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
                 return "Expected: join [game-id] [color]";
@@ -296,6 +297,8 @@ public class ChessClient {
             } else {
                 return "Oops! Looks like something went wrong with logging out. Can you try again?";
             }
+        } catch (Exception e) {
+            return "Error establishing connection with the game. Please try again";
         }
         state = State.INGAME;
 
