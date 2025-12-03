@@ -1,14 +1,21 @@
 package server;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import dataaccess.*;
 import handler.Handler;
 import io.javalin.*;
 import org.eclipse.jetty.server.Response;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 public class Server {
 
     private final Javalin javalin;
     private final Handler handler;
+    private final Gson gson = createSerializer();
 
     public Server() {
         // Change this to false in order to use the real database
@@ -48,9 +55,15 @@ public class Server {
             });
 
             ws.onMessage(ctx -> {
-                String message = ctx.message();
-                System.out.println("Received: " + message);
-                ctx.send(message);
+                try {
+                    UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
+                    System.out.println("Received: " + command);
+                    ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                    String responseText = new Gson().toJson(response);
+                    ctx.send(responseText);
+                } catch (Exception e) {
+                    System.err.println("Error parsing WebSocket message: " + e.getMessage());
+                }
             });
 
             ws.onClose(ctx -> System.out.println("WebSocket closed"));
@@ -60,6 +73,27 @@ public class Server {
     public int run(int desiredPort) {
         javalin.start(desiredPort);
         return javalin.port();
+    }
+
+    public static Gson createSerializer() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+
+        Gson defaultGson = new Gson();
+
+        gsonBuilder.registerTypeAdapter(UserGameCommand.class,
+                (JsonDeserializer<UserGameCommand>) (el, type, ctx) -> {
+                    UserGameCommand command = null;
+                    if (el.isJsonObject()) {
+                        String commandType = el.getAsJsonObject().get("commandType").getAsString();
+                        switch (UserGameCommand.CommandType.valueOf(commandType)) {
+                            case CONNECT, RESIGN, LEAVE -> command = defaultGson.fromJson(el, UserGameCommand.class);
+                            case MAKE_MOVE -> command = defaultGson.fromJson(el, MakeMoveCommand.class);
+                        }
+                    }
+                    return command;
+                });
+
+        return gsonBuilder.create();
     }
 
     public void stop() {
