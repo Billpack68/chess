@@ -7,6 +7,7 @@ import results.JoinGameResult;
 import results.ListGamesResult;
 import websocket.GameNotificationHandler;
 import websocket.WebSocketFacade;
+import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
 
 
@@ -292,7 +293,11 @@ public class ChessClient {
             JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
             JoinGameResult result = server.joinGame(request);
             webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName));
-            webSocketFacade.sendMessage(UserGameCommand.CommandType.CONNECT, authToken, 1);
+            if (playerColor.equals("WHITE")) {
+                webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.WHITE);
+            } else {
+                webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.BLACK);
+            }
 
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
@@ -309,14 +314,15 @@ public class ChessClient {
         }
         state = State.INGAME;
 
-        //Filler code for phase 5 - print a default board
-        ChessBoard newBoard = new ChessBoard();
-        newBoard.resetBoard();
-
-        if (playerColor.equals("WHITE")){
-            return boardPrinter.printBoard(newBoard, true);
-        }
-        return boardPrinter.printBoard(newBoard, false);
+//        //Filler code for phase 5 - print a default board
+//        ChessBoard newBoard = new ChessBoard();
+//        newBoard.resetBoard();
+//
+//        if (playerColor.equals("WHITE")){
+//            return boardPrinter.printBoard(newBoard, true);
+//        }
+//        return boardPrinter.printBoard(newBoard, false);
+        return "";
     }
 
     private String observe(String... params) {
@@ -340,11 +346,18 @@ public class ChessClient {
         }
         state = State.INGAME;
 
+        try {
+            webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName));
+            webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.OBSERVER);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
 
-        //Filler code for phase 5 - print a default board
-        ChessBoard newBoard = new ChessBoard();
-        newBoard.resetBoard();
-        return boardPrinter.printBoard(newBoard, true);
+//        //Filler code for phase 5 - print a default board
+//        ChessBoard newBoard = new ChessBoard();
+//        newBoard.resetBoard();
+//        return boardPrinter.printBoard(newBoard, true);
+        return "";
     }
 
     private String test(String... params) {

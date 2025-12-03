@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import jakarta.websocket.*;
 import org.glassfish.tyrus.core.WebSocketException;
+import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -74,9 +75,20 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void sendMessage(UserGameCommand.CommandType type, String authToken, Integer gameID) throws WebSocketException {
+    public void sendMessage(UserGameCommand.CommandType type, String authToken, Integer gameID)
+            throws WebSocketException {
         try {
             var action = new UserGameCommand(type, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new WebsocketException("Error with sending websocket message");
+        }
+    }
+
+    public void sendConnectMessage(String authToken, Integer gameID, ConnectCommand.JoinType joinType)
+            throws WebSocketException {
+        try {
+            var action = new ConnectCommand(authToken, gameID, joinType);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new WebsocketException("Error with sending websocket message");

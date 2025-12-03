@@ -5,8 +5,10 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import io.javalin.websocket.WsContext;
 import model.AuthData;
+import org.jetbrains.annotations.NotNull;
 import service.AuthService;
 import service.InvalidAuthTokenException;
+import websocket.commands.ConnectCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -24,7 +26,7 @@ public class WebSocketHandler {
             authService = new AuthService(new AuthDAO());
     }
 
-    public void handleConnect(WsContext ctx, String authToken, Integer gameID) {
+    public void handleConnect(WsContext ctx, String authToken, Integer gameID, ConnectCommand.JoinType joinType) {
         AuthData senderAuthData = verifyAuth(authToken);
         if (senderAuthData != null) {
             if (!gamers.containsKey(gameID)) {
@@ -34,8 +36,7 @@ public class WebSocketHandler {
 
             for (WsContext storedCTX : gamers.get(gameID)) {
                 if (!storedCTX.equals(ctx)) {
-                    ServerMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "\n" + senderAuthData.username() + " joined the game!");
+                    ServerMessage notification = getJoinMessage(joinType, senderAuthData);
                     String notificationJson = new Gson().toJson(notification);
                     storedCTX.send(notificationJson);
                 }
@@ -44,6 +45,21 @@ public class WebSocketHandler {
         } else {
             sendUnauthorized(ctx);
         }
+    }
+
+    private static ServerMessage getJoinMessage(ConnectCommand.JoinType joinType, AuthData senderAuthData) {
+        ServerMessage notification;
+        if (joinType == ConnectCommand.JoinType.WHITE) {
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    "\n" + senderAuthData.username() + " joined the game as white!");
+        } else if (joinType == ConnectCommand.JoinType.BLACK) {
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    "\n" + senderAuthData.username() + " joined the game as black!");
+        } else {
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    "\n" + senderAuthData.username() + " joined the game as an observer!");
+        }
+        return notification;
     }
 
     private AuthData verifyAuth(String authToken) {

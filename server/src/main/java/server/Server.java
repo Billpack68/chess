@@ -8,6 +8,7 @@ import handler.Handler;
 import handler.WebSocketHandler;
 import io.javalin.*;
 import org.eclipse.jetty.server.Response;
+import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -63,10 +64,10 @@ public class Server {
             ws.onMessage(ctx -> {
                 try {
                     UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
-//                    UserGameCommand.CommandType type = command.getCommandType();
 
                     switch (command.getCommandType()) {
-                        case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken(), command.getGameID());
+                        case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken(), command.getGameID(),
+                                ((ConnectCommand) command).getJoinType());
                     }
 
 
@@ -96,8 +97,9 @@ public class Server {
                 if (el.isJsonObject()) {
                     String commandType = el.getAsJsonObject().get("commandType").getAsString();
                     switch (UserGameCommand.CommandType.valueOf(commandType)) {
-                        case CONNECT, RESIGN, LEAVE -> command = defaultGson.fromJson(el, UserGameCommand.class);
+                        case RESIGN, LEAVE -> command = defaultGson.fromJson(el, UserGameCommand.class);
                         case MAKE_MOVE -> command = defaultGson.fromJson(el, MakeMoveCommand.class);
+                        case CONNECT -> command = defaultGson.fromJson(el, ConnectCommand.class);
                     }
                 }
                 return command;
