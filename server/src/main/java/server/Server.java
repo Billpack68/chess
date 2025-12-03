@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import dataaccess.*;
 import handler.Handler;
+import handler.WebSocketHandler;
 import io.javalin.*;
 import org.eclipse.jetty.server.Response;
 import websocket.commands.MakeMoveCommand;
@@ -16,14 +17,17 @@ public class Server {
     private final Javalin javalin;
     private final Handler handler;
     private final Gson gson = createSerializer();
+    private final WebSocketHandler wsHandler;
 
     public Server() {
         // Change this to false in order to use the real database
         boolean test = false;
         Handler tempHandler = null;
+        WebSocketHandler tempWSHandler = null;
         if (test) {
             try {
                 tempHandler = new Handler();
+                tempWSHandler = new WebSocketHandler();
             } catch(DataAccessException ex) {
                 System.err.println("Failed to initialize database or DAOs (for some reason): " + ex.getMessage());
                 System.exit(1);
@@ -31,6 +35,7 @@ public class Server {
         } else {
             try {
                 tempHandler = new Handler(new UserDAO(), new AuthDAO(), new GameDAO());
+                tempWSHandler = new WebSocketHandler();
             } catch(DataAccessException ex) {
                 System.err.println("Failed to initialize database or DAOs: " + ex.getMessage());
                 System.exit(1);
@@ -38,6 +43,7 @@ public class Server {
         }
 
         handler = tempHandler;
+        wsHandler = tempWSHandler;
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         javalin.post("/user", handler::registerUser);
@@ -57,10 +63,14 @@ public class Server {
             ws.onMessage(ctx -> {
                 try {
                     UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
-                    System.out.println("Received: " + command);
-                    ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                    String responseText = new Gson().toJson(response);
-                    ctx.send(responseText);
+//                    UserGameCommand.CommandType type = command.getCommandType();
+
+                    switch (command.getCommandType()) {
+                        case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken());
+                    }
+
+
+
                 } catch (Exception e) {
                     System.err.println("Error parsing WebSocket message: " + e.getMessage());
                 }
@@ -81,17 +91,17 @@ public class Server {
         Gson defaultGson = new Gson();
 
         gsonBuilder.registerTypeAdapter(UserGameCommand.class,
-                (JsonDeserializer<UserGameCommand>) (el, type, ctx) -> {
-                    UserGameCommand command = null;
-                    if (el.isJsonObject()) {
-                        String commandType = el.getAsJsonObject().get("commandType").getAsString();
-                        switch (UserGameCommand.CommandType.valueOf(commandType)) {
-                            case CONNECT, RESIGN, LEAVE -> command = defaultGson.fromJson(el, UserGameCommand.class);
-                            case MAKE_MOVE -> command = defaultGson.fromJson(el, MakeMoveCommand.class);
-                        }
+            (JsonDeserializer<UserGameCommand>) (el, type, ctx) -> {
+                UserGameCommand command = null;
+                if (el.isJsonObject()) {
+                    String commandType = el.getAsJsonObject().get("commandType").getAsString();
+                    switch (UserGameCommand.CommandType.valueOf(commandType)) {
+                        case CONNECT, RESIGN, LEAVE -> command = defaultGson.fromJson(el, UserGameCommand.class);
+                        case MAKE_MOVE -> command = defaultGson.fromJson(el, MakeMoveCommand.class);
                     }
-                    return command;
-                });
+                }
+                return command;
+            });
 
         return gsonBuilder.create();
     }
