@@ -77,7 +77,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void sendTestMessage(String authToken, Integer gameID) throws WebSocketException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, "BAD", gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new WebsocketException("Error with sending websocket message");
