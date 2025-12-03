@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import jakarta.websocket.*;
 import org.glassfish.tyrus.core.WebSocketException;
-import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -37,8 +36,8 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage clientMessage = gson.fromJson(message, ServerMessage.class);
-                    if (clientMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
-                        System.out.println("Invalid auth token, BUDDY!");
+                    if (clientMessage instanceof NotificationMessage) {
+                        System.out.println(((NotificationMessage) clientMessage).getMessage());
                     }
                     serverMessageObserver.notify(clientMessage);
                 }
@@ -75,9 +74,9 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void sendTestMessage(String authToken, Integer gameID) throws WebSocketException {
+    public void sendMessage(UserGameCommand.CommandType type, String authToken, Integer gameID) throws WebSocketException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            var action = new UserGameCommand(type, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new WebsocketException("Error with sending websocket message");

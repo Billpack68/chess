@@ -66,7 +66,7 @@ public class Server {
 //                    UserGameCommand.CommandType type = command.getCommandType();
 
                     switch (command.getCommandType()) {
-                        case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken());
+                        case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken(), command.getGameID());
                     }
 
 

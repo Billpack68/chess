@@ -11,7 +11,6 @@ public class GameNotificationHandler implements ServerMessageObserver {
 
     @Override
     public void notify(ServerMessage message) {
-        System.out.println("Websocket message received");
         System.out.print("\nIn game as " + clientName + " >>> ");
     }
 }

@@ -6,9 +6,8 @@ import requests.*;
 import results.JoinGameResult;
 import results.ListGamesResult;
 import websocket.GameNotificationHandler;
-import websocket.ServerMessageObserver;
 import websocket.WebSocketFacade;
-import websocket.messages.ServerMessage;
+import websocket.commands.UserGameCommand;
 
 
 import java.util.*;
@@ -293,6 +292,8 @@ public class ChessClient {
             JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
             JoinGameResult result = server.joinGame(request);
             webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName));
+            webSocketFacade.sendMessage(UserGameCommand.CommandType.CONNECT, authToken, 1);
+
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
                 return "Expected: join [game-id] [color]";
@@ -355,7 +356,6 @@ public class ChessClient {
         if (params.length != 0) {
             return "Expected: test";
         }
-        webSocketFacade.sendTestMessage(authToken, 1);
         return "Tested";
     }
 
