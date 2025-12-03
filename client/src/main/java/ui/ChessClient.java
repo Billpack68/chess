@@ -5,7 +5,10 @@ import model.GameData;
 import requests.*;
 import results.JoinGameResult;
 import results.ListGamesResult;
-import websocket.WsClient;
+import websocket.GameNotificationHandler;
+import websocket.ServerMessageObserver;
+import websocket.WebSocketFacade;
+import websocket.messages.ServerMessage;
 
 
 import java.util.*;
@@ -14,14 +17,16 @@ public class ChessClient {
     private String clientName;
     private String authToken;
     private final ServerFacade server;
+    private String serverUrl;
     private State state = State.SIGNEDOUT;
     private Map<Integer, Integer> iDConverter = new HashMap<>();
     private Map<Integer, Integer> iDUnConverter = new HashMap<>();
     private BoardPrinter boardPrinter = new BoardPrinter();
     private Map<Integer, GameData> gameData = new HashMap<>();
-    private WsClient wsClient;
+    private WebSocketFacade webSocketFacade;
 
     public ChessClient(String serverUrl) {
+        this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
     }
 
@@ -58,6 +63,7 @@ public class ChessClient {
             case "create" -> createGame(params);
             case "join" -> joinGame(params);
             case "observe" -> observe(params);
+            case "test" -> test(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -286,7 +292,7 @@ public class ChessClient {
         try {
             JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
             JoinGameResult result = server.joinGame(request);
-            wsClient = new WsClient();
+            webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler());
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
                 return "Expected: join [game-id] [color]";
@@ -298,7 +304,7 @@ public class ChessClient {
                 return "Oops! Looks like something went wrong with logging out. Can you try again?";
             }
         } catch (Exception e) {
-            return "Error establishing connection with the game. Please try again";
+            return e.getMessage();
         }
         state = State.INGAME;
 
@@ -340,6 +346,19 @@ public class ChessClient {
         return boardPrinter.printBoard(newBoard, true);
     }
 
+    private String test(String... params) {
+        try {
+            assertInGame();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        if (params.length != 0) {
+            return "Expected: test";
+        }
+        webSocketFacade.sendTestMessage(authToken, 1);
+        return "Tested";
+    }
+
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNEDOUT) {
             throw new Exception("You must sign in first");
@@ -351,6 +370,12 @@ public class ChessClient {
     private void assertNotSignedIn() throws Exception {
         if (state != State.SIGNEDOUT) {
             throw new Exception("You must be signed out to use that command");
+        }
+    }
+
+    private void assertInGame() throws Exception {
+        if (state != State.INGAME) {
+            throw new Exception("You must be in a game to use that command");
         }
     }
 }
