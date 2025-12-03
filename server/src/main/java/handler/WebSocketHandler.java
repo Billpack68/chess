@@ -18,11 +18,15 @@ public class WebSocketHandler {
             authService = new AuthService(new AuthDAO());
     }
 
-    public void handleConnect(WsContext ctx) {
-
-        ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        String responseText = new Gson().toJson(response);
-        ctx.send(responseText);
+    public void handleConnect(WsContext ctx, String authToken) {
+        boolean valid = verifyAuth(authToken);
+        if (valid) {
+            ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            String responseText = new Gson().toJson(response);
+            ctx.send(responseText);
+        } else {
+            sendUnauthorized(ctx);
+        }
     }
 
     private boolean verifyAuth(String authToken) {

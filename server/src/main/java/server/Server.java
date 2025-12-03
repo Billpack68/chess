@@ -63,9 +63,10 @@ public class Server {
             ws.onMessage(ctx -> {
                 try {
                     UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
-                    UserGameCommand.CommandType type = command.getCommandType();
+//                    UserGameCommand.CommandType type = command.getCommandType();
+
                     switch (command.getCommandType()) {
-                        case CONNECT -> wsHandler.handleConnect(ctx);
+                        case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken());
                     }
 
 
