@@ -292,7 +292,7 @@ public class ChessClient {
         try {
             JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
             JoinGameResult result = server.joinGame(request);
-            webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler());
+            webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName));
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
                 return "Expected: join [game-id] [color]";
