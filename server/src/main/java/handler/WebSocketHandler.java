@@ -37,6 +37,16 @@ public class WebSocketHandler {
     public void handleConnect(WsContext ctx, String authToken, Integer gameID, ConnectCommand.JoinType joinType) {
         AuthData senderAuthData = verifyAuth(authToken);
         if (senderAuthData != null) {
+            GameData game = null;
+            try {
+                game = gameDAO.findGameDataByID(gameID);
+            } catch (DataAccessException e) {
+                sendErrorMessage(ctx, "Error: unable to connect to database");
+            }
+            if (game == null) {
+                sendErrorMessage(ctx, "Error: invalid game ID");
+                return;
+            }
             if (!gamers.containsKey(gameID)) {
                 gamers.put(gameID, new ArrayList<>());
             }
@@ -134,7 +144,22 @@ public class WebSocketHandler {
     }
 
     public void handleLeave(WsContext ctx, String authToken, Integer gameID) {
-        System.out.println("They're leaving!");
+        AuthData senderAuthData = verifyAuth(authToken);
+        if (senderAuthData == null) {
+            sendErrorMessage(ctx, "Error: unable to authenticate user");
+            return;
+        }
+        GameData gameData = null;
+        try {
+            gameData = gameDAO.findGameDataByID(gameID);
+        } catch (DataAccessException e) {
+            sendErrorMessage(ctx, "Error: we couldn't find that game in our database");
+            return;
+        }
+
+        // handle this
+
+        gamers.get(gameID).remove(ctx);
     }
 
     private static ServerMessage getServerMessage(boolean isInCheckmate, boolean isInCheck, AuthData senderAuthData,
