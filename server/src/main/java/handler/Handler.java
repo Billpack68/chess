@@ -10,15 +10,13 @@ import service.*;
 import io.javalin.http.Context;
 
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class Handler {
 
     private final Service service;
     private Gson serializer;
+    private Set<JoinData> joinData = new HashSet<>();
 
     public Handler() throws DataAccessException {
         this(new MemoryUserDAO(), new MemoryAuthDAO(), new MemoryGameDAO());
@@ -126,6 +124,7 @@ public class Handler {
             JoinGameRequest request = new JoinGameRequest(ctx.header("authorization"),
                     body.getPlayerColor(), body.getGameID());
             JoinGameResult result = service.joinGame(request);
+            joinData.add(new JoinData(request.authToken(), request.playerColor(), request.gameID()));
             ctx.result(serializer.toJson(result));
             ctx.status(200);
         } catch (MissingDataException | GameNotFoundException e) {
@@ -150,4 +149,7 @@ public class Handler {
         }
 
     }
+
+    public Set<JoinData> getJoinData() { return joinData; }
+    public void removeJoinData(JoinData data) { joinData.remove(data); }
 }

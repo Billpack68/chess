@@ -18,11 +18,9 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class WebSocketHandler {
     private final AuthService authService;
@@ -66,8 +64,7 @@ public class WebSocketHandler {
         }
     }
 
-    public void handleMakeMove(WsContext ctx, String authToken, Integer gameID, ChessMove move,
-                               ChessGame.TeamColor senderColor) {
+    public void handleMakeMove(WsContext ctx, String authToken, Integer gameID, ChessMove move) {
         AuthData senderAuthData = verifyAuth(authToken);
         if (senderAuthData == null) {
             sendErrorMessage(ctx, "Error: unable to authenticate user");
@@ -81,14 +78,18 @@ public class WebSocketHandler {
             return;
         }
         ChessGame game = gameData.game();
-        if (game.getTeamTurn() != senderColor) {
-            sendErrorMessage(ctx, "Error: It's not your turn");
-            return;
-        }
         ChessPiece pieceInSpot = game.getBoard().getPiece(move.getStartPosition());
-        if (pieceInSpot != null && pieceInSpot.getTeamColor() != senderColor) {
-            sendErrorMessage(ctx, "Error: You can only move pieces on your team");
-            return;
+        if (pieceInSpot != null) {
+            ChessGame.TeamColor pieceColor = pieceInSpot.getTeamColor();
+            if (pieceColor == ChessGame.TeamColor.WHITE &&
+                    !Objects.equals(gameData.whiteUsername(), senderAuthData.username())) {
+                sendErrorMessage(ctx, "Error: You can only move pieces on your team");
+                return;
+            } else if (pieceColor == ChessGame.TeamColor.BLACK &&
+                    !Objects.equals(gameData.blackUsername(), senderAuthData.username())) {
+                sendErrorMessage(ctx, "Error: You can only move pieces on your team");
+                return;
+            }
         }
         try {
             game.makeMove(move);
@@ -106,9 +107,6 @@ public class WebSocketHandler {
             return;
         }
 
-        // Then check for stalemate,
-        // check, and checkmate
-
         for (WsContext storedCTX : gamers.get(gameID)) {
             sendLoadGame(gameID, storedCTX);
             if (!storedCTX.equals(ctx)) {
@@ -121,7 +119,8 @@ public class WebSocketHandler {
 
         ChessGame.TeamColor enemyColor;
         String enemyUsername;
-        if (senderColor == ChessGame.TeamColor.WHITE) {
+        assert pieceInSpot != null;
+        if (pieceInSpot.getTeamColor() == ChessGame.TeamColor.WHITE) {
             enemyColor = ChessGame.TeamColor.BLACK;
             enemyUsername = gameData.blackUsername();
         } else {
@@ -157,7 +156,25 @@ public class WebSocketHandler {
             return;
         }
 
-        // handle this
+        if (Objects.equals(senderAuthData.username(), gameData.whiteUsername())) {
+            GameData newGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(),
+                    gameData.gameName(), gameData.game());
+            try {
+                gameDAO.updateGame(gameData, newGameData);
+            } catch (DataAccessException e) {
+                sendErrorMessage(ctx, "Error: we couldn't access the database");
+                return;
+            }
+        } else if (Objects.equals(senderAuthData.username(), gameData.blackUsername())) {
+            GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null,
+                    gameData.gameName(), gameData.game());
+            try {
+                gameDAO.updateGame(gameData, newGameData);
+            } catch (DataAccessException e) {
+                sendErrorMessage(ctx, "Error: we couldn't access the database");
+                return;
+            }
+        }
 
         gamers.get(gameID).remove(ctx);
     }
