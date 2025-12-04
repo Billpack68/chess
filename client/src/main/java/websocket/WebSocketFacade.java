@@ -110,7 +110,12 @@ public class WebSocketFacade extends Endpoint {
 
     public void sendMakeMoveMessage(String authToken, Integer gameID, ChessMove move) {
         try {
-            var action = new MakeMoveCommand(authToken, gameID, move);
+            var action = new MakeMoveCommand(null, null, null, null);
+            if (clientWhite) {
+                action = new MakeMoveCommand(authToken, gameID, move, ChessGame.TeamColor.WHITE);
+            } else {
+                action = new MakeMoveCommand(authToken, gameID, move, ChessGame.TeamColor.BLACK);
+            }
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new WebsocketException("Error with sending websocket message");

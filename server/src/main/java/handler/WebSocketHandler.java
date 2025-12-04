@@ -2,6 +2,7 @@ package handler;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
@@ -56,7 +57,8 @@ public class WebSocketHandler {
         }
     }
 
-    public void handleMakeMove(WsContext ctx, String authToken, Integer gameID, ChessMove move) {
+    public void handleMakeMove(WsContext ctx, String authToken, Integer gameID, ChessMove move,
+                               ChessGame.TeamColor senderColor) {
         AuthData senderAuthData = verifyAuth(authToken);
         if (senderAuthData == null) {
             sendErrorMessage(ctx, "Error: unable to authenticate user");
@@ -70,6 +72,15 @@ public class WebSocketHandler {
             return;
         }
         ChessGame game = gameData.game();
+        if (game.getTeamTurn() != senderColor) {
+            sendErrorMessage(ctx, "Error: It's not your turn");
+            return;
+        }
+        ChessPiece pieceInSpot = game.getBoard().getPiece(move.getStartPosition());
+        if (pieceInSpot != null && pieceInSpot.getTeamColor() != senderColor) {
+            sendErrorMessage(ctx, "Error: You can only move pieces on your team");
+            return;
+        }
         try {
             game.makeMove(move);
         } catch (InvalidMoveException e) {
