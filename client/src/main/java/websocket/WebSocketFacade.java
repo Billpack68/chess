@@ -28,7 +28,8 @@ public class WebSocketFacade extends Endpoint {
 
     private final Gson gson = createSerializer();
 
-    public WebSocketFacade(String url, ServerMessageObserver serverMessageObserver, boolean clientWhite) throws WebsocketException {
+    public WebSocketFacade(String url, ServerMessageObserver serverMessageObserver,
+                           boolean clientWhite) throws WebsocketException {
         this.clientWhite = clientWhite;
         try {
             url = url.replace("http", "ws");

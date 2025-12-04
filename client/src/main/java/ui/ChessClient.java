@@ -94,23 +94,56 @@ public class ChessClient {
                     quit
                         Exits the program
                     """;
+        } else if (state == State.SIGNED_IN) {
+            return """
+                    Commands:
+                    logout
+                        Logs you out
+                    list
+                        Lists the games that you can join
+                    create [game-name]
+                        Creates a new game under the name that you specify (no spaces)
+                    join [game-id] [color]
+                        Join a game by specifying the game number
+                    help
+                        Shows a list of commands you can do
+                    quit
+                        Exits the program
+                    """;
+        } else if (state == State.IN_GAME) {
+            return """
+                    Commands:
+                    redraw
+                        Redraw the chess board
+                    move [start-position] [end-position]
+                        Move the piece at the start position to the end position
+                        Positions should be in the format "b4" or similar, not "4,4"
+                    highlight [position]
+                        Highlight the legal moves a piece can make
+                    resign
+                        Resign the game. The game will be over
+                    leave
+                        Leave the game
+                    help
+                        Shows a list of commands you can do
+                    quit
+                        Exits the program
+                    """;
+        } else {
+            return """
+                    Commands:
+                    redraw
+                        Redraw the chess board
+                    highlight [position]
+                        Highlight the legal moves a piece can make
+                    leave
+                        Leave the game
+                    help
+                        Shows a list of commands you can do
+                    quit
+                        Exits the program
+                    """;
         }
-
-        return """
-                Commands:
-                logout
-                    Logs you out
-                list
-                    Lists the games that you can join
-                create [game-name]
-                    Creates a new game under the name that you specify (no spaces)
-                join [game-id] [color]
-                    Join a game by specifying the game number
-                help
-                    Shows a list of commands you can do
-                quit
-                    Exits the program
-                """;
     }
 
     private String register(String... params) {
@@ -300,7 +333,6 @@ public class ChessClient {
                 webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName), false);
                 webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.BLACK);
             }
-
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
                 return "Expected: join [game-id] [color]";
@@ -316,7 +348,7 @@ public class ChessClient {
         }
         state = State.IN_GAME;
 
-        return "";
+        return help();
     }
 
     private String observe(String... params) {
@@ -346,7 +378,7 @@ public class ChessClient {
             return e.getMessage();
         }
 
-        return "";
+        return help();
     }
 
     // TODO: Add commands for in game
@@ -356,7 +388,7 @@ public class ChessClient {
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNED_OUT) {
             throw new Exception("You must sign in first");
-        } else if (state == State.IN_GAME) {
+        } else if (state == State.IN_GAME || state == State.OBSERVING) {
             throw new Exception("You cannot do that while in a game");
         }
     }
