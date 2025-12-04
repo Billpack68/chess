@@ -360,6 +360,10 @@ public class ChessClient {
         return "";
     }
 
+    // TODO: Add commands for in game
+    // TODO: Add the Load game as a message the server can send
+    // TODO: Add "Make move" and resign and leave as messages WS can send
+
     private String test(String... params) {
         try {
             assertInGame();
