@@ -1,6 +1,7 @@
 package handler;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -51,6 +52,10 @@ public class WebSocketHandler {
         } else {
             sendUnauthorized(ctx);
         }
+    }
+
+    public void handleMakeMove(WsContext ctx, String authToken, Integer gameID, ChessMove move) {
+        System.out.println("Received a move");
     }
 
     private static ServerMessage getJoinMessage(ConnectCommand.JoinType joinType, AuthData senderAuthData) {

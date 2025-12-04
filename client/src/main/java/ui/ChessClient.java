@@ -1,6 +1,7 @@
 package ui;
 
-import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import model.GameData;
 import requests.*;
 import results.JoinGameResult;
@@ -24,6 +25,8 @@ public class ChessClient {
     private BoardPrinter boardPrinter = new BoardPrinter();
     private Map<Integer, GameData> gameData = new HashMap<>();
     private WebSocketFacade webSocketFacade;
+    private MoveMaker moveMaker = new MoveMaker();
+    private Integer inGameID;
 
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
@@ -63,6 +66,7 @@ public class ChessClient {
             case "create" -> createGame(params);
             case "join" -> joinGame(params);
             case "observe" -> observe(params);
+            case "move" -> move(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -115,9 +119,10 @@ public class ChessClient {
                     Commands:
                     redraw
                         Redraw the chess board
-                    move [start-position] [end-position]
+                    move [start-position] [end-position] [optional: promotion piece type]
                         Move the piece at the start position to the end position
                         Positions should be in the format "b4" or similar, not "4,4"
+                        Promotion piece type should be "rook" "knight" "bishop" or "queen"
                     highlight [position]
                         Highlight the legal moves a piece can make
                     resign
@@ -324,14 +329,15 @@ public class ChessClient {
             return "Please input `white` or `black` for the color";
         }
         try {
-            JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
+            inGameID = iDUnConverter.get(gameID);
+            JoinGameRequest request = new JoinGameRequest(authToken, playerColor, inGameID);
             JoinGameResult result = server.joinGame(request);
             if (playerColor.equals("WHITE")) {
                 webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName), true);
-                webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.WHITE);
+                webSocketFacade.sendConnectMessage(authToken, inGameID, ConnectCommand.JoinType.WHITE);
             } else {
                 webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName), false);
-                webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.BLACK);
+                webSocketFacade.sendConnectMessage(authToken, inGameID, ConnectCommand.JoinType.BLACK);
             }
         } catch (ServerFacadeException e) {
             if (e.getId() == 400) {
@@ -372,8 +378,9 @@ public class ChessClient {
         }
         state = State.OBSERVING;
         try {
-            webSocketFacade = new WebSocketFacade(serverUrl, new ObserveNotificationHandler(clientName), true);
-            webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.OBSERVER);
+            webSocketFacade = new WebSocketFacade(serverUrl, new ObserveNotificationHandler(clientName),
+                    true);
+            webSocketFacade.sendConnectMessage(authToken, inGameID, ConnectCommand.JoinType.OBSERVER);
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -381,9 +388,28 @@ public class ChessClient {
         return help();
     }
 
-    // TODO: Add commands for in game
-    // TODO: Add the Load game as a message the server can send
-    // TODO: Add "Make move" and resign and leave as messages WS can send
+    private String move(String... params) {
+        try {
+            assertInGame();
+        } catch (Exception ex) {
+            return "You must be playing a game to use that command";
+        }
+
+        if (params.length < 2 || params.length > 3) {
+            return "Expected: move [start-position] [end-position] [optional: promotion piece]";
+        }
+
+        ChessMove move;
+        try {
+            move = moveMaker.makeMove(params);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+
+        webSocketFacade.sendMakeMoveMessage(authToken, inGameID, move);
+
+        return "";
+    }
 
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNED_OUT) {
