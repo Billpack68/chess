@@ -50,6 +50,8 @@ public class WebSocketFacade extends Endpoint {
                     } else if (clientMessage instanceof LoadGameMessage) {
                         ChessGame game = ((LoadGameMessage) clientMessage).getGame();
                         updateStoredGame(game);
+                    } else if (clientMessage instanceof ErrorMessage) {
+                        System.out.println(((ErrorMessage) clientMessage).getErrorMessage());
                     }
                     serverMessageObserver.notify(clientMessage);
                 }

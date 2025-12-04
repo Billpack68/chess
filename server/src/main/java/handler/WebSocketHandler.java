@@ -9,7 +9,6 @@ import dataaccess.GameDAO;
 import io.javalin.websocket.WsContext;
 import model.AuthData;
 import model.GameData;
-import org.jetbrains.annotations.NotNull;
 import service.AuthService;
 import service.InvalidAuthTokenException;
 import websocket.commands.ConnectCommand;
@@ -20,6 +19,7 @@ import websocket.messages.ServerMessage;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,12 +50,29 @@ public class WebSocketHandler {
             sendLoadGame(gameID, ctx);
 
         } else {
-            sendUnauthorized(ctx);
+            sendErrorMessage(ctx, "Error: unable to authenticate user");
         }
     }
 
     public void handleMakeMove(WsContext ctx, String authToken, Integer gameID, ChessMove move) {
-        System.out.println("Received a move");
+        AuthData senderAuthData = verifyAuth(authToken);
+        if (senderAuthData == null) {
+            sendErrorMessage(ctx, "Error: unable to authenticate user");
+            return;
+        }
+        GameData gameData = null;
+        try {
+            gameData = gameDAO.findGameDataByID(gameID);
+        } catch (DataAccessException e) {
+            sendErrorMessage(ctx, "Error: we couldn't find that game in our database");
+            return;
+        }
+        ChessGame game = gameData.game();
+        Collection<ChessMove> validMoves = game.validMoves(move.getStartPosition());
+        ChessGame.TeamColor moveColor = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
+        if (game.getTeamTurn() != moveColor || !validMoves.contains(move)) {
+            sendErrorMessage(ctx, "Error: Looks like that move isn't valid");
+        }
     }
 
     private static ServerMessage getJoinMessage(ConnectCommand.JoinType joinType, AuthData senderAuthData) {
@@ -88,7 +105,7 @@ public class WebSocketHandler {
         try {
             gameData = gameDAO.findGameDataByID(gameID);
         } catch (DataAccessException e) {
-            sendError(ctx);
+            sendErrorMessage(ctx, "Error: we couldn't find that game in our database");
             return;
         }
         ChessGame game = gameData.game();
@@ -98,16 +115,9 @@ public class WebSocketHandler {
         ctx.send(responseText);
     }
 
-    private void sendUnauthorized(WsContext ctx) {
+    private void sendErrorMessage(WsContext ctx, String message) {
         ErrorMessage response = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                "Error: Unable to authorize user");
-        String responseText = new Gson().toJson(response);
-        ctx.send(responseText);
-    }
-
-    private void sendError(WsContext ctx) {
-        ErrorMessage response = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                "Error: looks like we hit a snafu, could you try that again?");
+                message);
         String responseText = new Gson().toJson(response);
         ctx.send(responseText);
     }
