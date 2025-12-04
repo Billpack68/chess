@@ -133,6 +133,10 @@ public class WebSocketHandler {
 
     }
 
+    public void handleLeave(WsContext ctx, String authToken, Integer gameID) {
+        System.out.println("They're leaving!");
+    }
+
     private static ServerMessage getServerMessage(boolean isInCheckmate, boolean isInCheck, AuthData senderAuthData,
                                                   String enemyUsername) {
         ServerMessage notification;

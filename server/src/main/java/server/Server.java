@@ -70,6 +70,7 @@ public class Server {
                                 ((ConnectCommand) command).getJoinType());
                         case MAKE_MOVE -> wsHandler.handleMakeMove(ctx, command.getAuthToken(), command.getGameID(),
                                 ((MakeMoveCommand) command).getMove(), ((MakeMoveCommand) command).getSenderColor());
+                        case LEAVE -> wsHandler.handleLeave(ctx, command.getAuthToken(), command.getGameID());
                     }
 
 

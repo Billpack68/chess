@@ -67,6 +67,7 @@ public class ChessClient {
             case "join" -> joinGame(params);
             case "observe" -> observe(params);
             case "move" -> move(params);
+            case "leave" -> leave(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -412,6 +413,21 @@ public class ChessClient {
         return "";
     }
 
+    private String leave(String... params) {
+        try {
+            assertInGameMode();
+        } catch (Exception ex) {
+            return "You must be playing a game to use that command";
+        }
+        if (params.length > 0) {
+            return "Expected: leave";
+        }
+        webSocketFacade.sendLeaveMessage(authToken, inGameID);
+        inGameID = null;
+        state = State.SIGNED_IN;
+        return "";
+    }
+
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNED_OUT) {
             throw new Exception("You must sign in first");
@@ -428,6 +444,12 @@ public class ChessClient {
 
     private void assertInGame() throws Exception {
         if (state != State.IN_GAME) {
+            throw new Exception("You must be in a game to use that command");
+        }
+    }
+
+    private void assertInGameMode() throws Exception {
+        if (state != State.IN_GAME && state != State.OBSERVING) {
             throw new Exception("You must be in a game to use that command");
         }
     }

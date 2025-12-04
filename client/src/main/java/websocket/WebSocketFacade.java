@@ -122,6 +122,15 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    public void sendLeaveMessage(String authToken, Integer gameID) {
+        try {
+            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new WebsocketException("Error with sending websocket message");
+        }
+    }
+
     private void updateStoredGame(ChessGame game) {
         gameStorage.updateGame(game, clientWhite);
     }
