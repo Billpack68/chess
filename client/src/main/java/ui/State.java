@@ -1,7 +1,8 @@
 package ui;
 
 public enum State {
-    SIGNEDOUT,
-    SIGNEDIN,
-    INGAME
+    SIGNED_OUT,
+    SIGNED_IN,
+    IN_GAME,
+    OBSERVING
 }

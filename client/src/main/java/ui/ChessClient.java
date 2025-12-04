@@ -1,14 +1,13 @@
 package ui;
 
-import chess.ChessBoard;
 import model.GameData;
 import requests.*;
 import results.JoinGameResult;
 import results.ListGamesResult;
 import websocket.GameNotificationHandler;
+import websocket.ObserveNotificationHandler;
 import websocket.WebSocketFacade;
 import websocket.commands.ConnectCommand;
-import websocket.commands.UserGameCommand;
 
 
 import java.util.*;
@@ -18,7 +17,7 @@ public class ChessClient {
     private String authToken;
     private final ServerFacade server;
     private String serverUrl;
-    private State state = State.SIGNEDOUT;
+    private State state = State.SIGNED_OUT;
     private Map<Integer, Integer> iDConverter = new HashMap<>();
     private Map<Integer, Integer> iDUnConverter = new HashMap<>();
     private BoardPrinter boardPrinter = new BoardPrinter();
@@ -71,17 +70,19 @@ public class ChessClient {
     }
 
     private void printPrompt() {
-        if (state == State.SIGNEDIN) {
+        if (state == State.SIGNED_IN) {
             System.out.print("\nLogged in as " + clientName + " >>> ");
-        } else if (state == State.SIGNEDOUT) {
+        } else if (state == State.SIGNED_OUT) {
             System.out.print("\n>>> ");
-        } else if (state == State.INGAME) {
+        } else if (state == State.IN_GAME) {
             System.out.print("\nIn game as " + clientName + " >>> ");
+        } else if (state == State.OBSERVING) {
+            System.out.print("\nObserving as " + clientName + " >>> ");
         }
     }
 
     private String help() {
-        if (state == State.SIGNEDOUT) {
+        if (state == State.SIGNED_OUT) {
             return """
                     Commands:
                     register [username] [password] [email]
@@ -160,7 +161,7 @@ public class ChessClient {
             }
         }
         clientName = params[0];
-        state = State.SIGNEDIN;
+        state = State.SIGNED_IN;
         return "Logged in as " + clientName + ". Type `help` to see a list of commands.";
     }
 
@@ -184,7 +185,7 @@ public class ChessClient {
             }
         }
         clientName = null;
-        state = State.SIGNEDOUT;
+        state = State.SIGNED_OUT;
         return "Successfully logged out!";
     }
 
@@ -312,7 +313,7 @@ public class ChessClient {
         } catch (Exception e) {
             return e.getMessage();
         }
-        state = State.INGAME;
+        state = State.IN_GAME;
 
 //        //Filler code for phase 5 - print a default board
 //        ChessBoard newBoard = new ChessBoard();
@@ -344,10 +345,10 @@ public class ChessClient {
         if (!iDUnConverter.containsKey(gameID)) {
             return "Looks like that game doesn't exist. Please try again.";
         }
-        state = State.INGAME;
+        state = State.OBSERVING;
 
         try {
-            webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName));
+            webSocketFacade = new WebSocketFacade(serverUrl, new ObserveNotificationHandler(clientName));
             webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.OBSERVER);
         } catch (Exception e) {
             return e.getMessage();
@@ -377,21 +378,21 @@ public class ChessClient {
     }
 
     private void assertSignedIn() throws Exception {
-        if (state == State.SIGNEDOUT) {
+        if (state == State.SIGNED_OUT) {
             throw new Exception("You must sign in first");
-        } else if (state == State.INGAME) {
+        } else if (state == State.IN_GAME) {
             throw new Exception("You cannot do that while in a game");
         }
     }
 
     private void assertNotSignedIn() throws Exception {
-        if (state != State.SIGNEDOUT) {
+        if (state != State.SIGNED_OUT) {
             throw new Exception("You must be signed out to use that command");
         }
     }
 
     private void assertInGame() throws Exception {
-        if (state != State.INGAME) {
+        if (state != State.IN_GAME) {
             throw new Exception("You must be in a game to use that command");
         }
     }
