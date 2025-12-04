@@ -8,6 +8,7 @@ import dataaccess.GameDAO;
 import io.javalin.websocket.WsContext;
 import model.AuthData;
 import model.GameData;
+import org.jetbrains.annotations.NotNull;
 import service.AuthService;
 import service.InvalidAuthTokenException;
 import websocket.commands.ConnectCommand;
@@ -95,8 +96,6 @@ public class WebSocketHandler {
             return;
         }
 
-        // Update "made a move" below to
-        // describe their move
         // Then check for stalemate,
         // check, and checkmate
 
@@ -109,6 +108,45 @@ public class WebSocketHandler {
                 storedCTX.send(notificationJson);
             }
         }
+
+        ChessGame.TeamColor enemyColor;
+        String enemyUsername;
+        if (senderColor == ChessGame.TeamColor.WHITE) {
+            enemyColor = ChessGame.TeamColor.BLACK;
+            enemyUsername = gameData.blackUsername();
+        } else {
+            enemyColor = ChessGame.TeamColor.WHITE;
+            enemyUsername = gameData.whiteUsername();
+        }
+
+        boolean isInCheckmate = game.isInCheckmate(enemyColor);
+        boolean isInCheck = !isInCheckmate && game.isInCheck(enemyColor);
+        boolean isInStalemate = !isInCheckmate && !isInCheck && game.isInStalemate(enemyColor);
+
+        if (isInCheckmate || isInCheck || isInStalemate) {
+            for (WsContext storedCTX : gamers.get(gameID)) {
+                ServerMessage notification = getServerMessage(isInCheckmate, isInCheck, senderAuthData, enemyUsername);
+                String notificationJson = new Gson().toJson(notification);
+                storedCTX.send(notificationJson);
+            }
+        }
+
+    }
+
+    private static ServerMessage getServerMessage(boolean isInCheckmate, boolean isInCheck, AuthData senderAuthData,
+                                                  String enemyUsername) {
+        ServerMessage notification;
+        if (isInCheckmate) {
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    senderAuthData.username() + " put " + enemyUsername + " in checkmate!");
+        } else if (isInCheck) {
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    senderAuthData.username() + " put " + enemyUsername + " in check!");
+        } else {
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    senderAuthData.username() + " put " + enemyUsername + " in stalemate!");
+        }
+        return notification;
     }
 
     private String getMoveText(ChessMove move) {
