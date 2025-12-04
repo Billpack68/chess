@@ -1,9 +1,6 @@
 package handler;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -30,6 +27,7 @@ public class WebSocketHandler {
     private final AuthService authService;
     private final GameDAO gameDAO = new GameDAO();
     private Map<Integer, ArrayList<WsContext>> gamers = new HashMap<>();
+    private final String[] letters = {null, "a", "b", "c", "d", "e", "f", "g", "h"};
 
     public WebSocketHandler() throws DataAccessException {
         authService = new AuthService(new AuthDAO());
@@ -97,15 +95,39 @@ public class WebSocketHandler {
             return;
         }
 
+        // Update "made a move" below to
+        // describe their move
+        // Then check for stalemate,
+        // check, and checkmate
+
         for (WsContext storedCTX : gamers.get(gameID)) {
             sendLoadGame(gameID, storedCTX);
             if (!storedCTX.equals(ctx)) {
                 ServerMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                        senderAuthData.username() + " made a move");
+                        senderAuthData.username() + getMoveText(move));
                 String notificationJson = new Gson().toJson(notification);
                 storedCTX.send(notificationJson);
             }
         }
+    }
+
+    private String getMoveText(ChessMove move) {
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        String returnString = "";
+        returnString += " moved their piece at " + letters[startPosition.getColumn()] + startPosition.getRow();
+        returnString += " to " + letters[endPosition.getColumn()] + endPosition.getRow();
+        if (move.getPromotionPiece() != null) {
+            ChessPiece.PieceType type = move.getPromotionPiece();
+            returnString += " and promoted it to a ";
+            switch (type) {
+                case ChessPiece.PieceType.QUEEN -> returnString += "queen";
+                case ChessPiece.PieceType.ROOK -> returnString += "rook";
+                case ChessPiece.PieceType.KNIGHT -> returnString += "knight";
+                case ChessPiece.PieceType.BISHOP -> returnString += "bishop";
+            }
+        }
+        return returnString;
     }
 
     private static ServerMessage getJoinMessage(ConnectCommand.JoinType joinType, AuthData senderAuthData) {

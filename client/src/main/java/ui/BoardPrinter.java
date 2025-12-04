@@ -9,7 +9,7 @@ import static ui.EscapeSequences.*;
 
 
 public class BoardPrinter {
-    private String[] letters = {null, "a", "b", "c", "d", "e", "f", "g", "h"};
+    private final String[] letters = {null, "a", "b", "c", "d", "e", "f", "g", "h"};
 
     public String printBoard(ChessBoard board, Boolean white) {
         StringBuilder printBoard = new StringBuilder();
