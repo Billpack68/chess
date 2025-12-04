@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 
 import com.google.gson.GsonBuilder;
@@ -21,10 +22,14 @@ public class WebSocketFacade extends Endpoint {
 
     Session session;
     ServerMessageObserver serverMessageObserver;
+    private GameStorage gameStorage = new GameStorage(null);
+    ChessGame game = null;
+    boolean clientWhite;
 
     private final Gson gson = createSerializer();
 
-    public WebSocketFacade(String url, ServerMessageObserver serverMessageObserver) throws WebsocketException {
+    public WebSocketFacade(String url, ServerMessageObserver serverMessageObserver, boolean clientWhite) throws WebsocketException {
+        this.clientWhite = clientWhite;
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -39,6 +44,9 @@ public class WebSocketFacade extends Endpoint {
                     ServerMessage clientMessage = gson.fromJson(message, ServerMessage.class);
                     if (clientMessage instanceof NotificationMessage) {
                         System.out.println(((NotificationMessage) clientMessage).getMessage());
+                    } else if (clientMessage instanceof LoadGameMessage) {
+                        ChessGame game = ((LoadGameMessage) clientMessage).getGame();
+                        updateStoredGame(game);
                     }
                     serverMessageObserver.notify(clientMessage);
                 }
@@ -93,6 +101,10 @@ public class WebSocketFacade extends Endpoint {
         } catch (IOException ex) {
             throw new WebsocketException("Error with sending websocket message");
         }
+    }
+
+    private void updateStoredGame(ChessGame game) {
+        gameStorage.updateGame(game, clientWhite);
     }
 
 }

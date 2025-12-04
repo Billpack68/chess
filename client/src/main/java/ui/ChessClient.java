@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import model.GameData;
 import requests.*;
 import results.JoinGameResult;
@@ -62,7 +63,6 @@ public class ChessClient {
             case "create" -> createGame(params);
             case "join" -> joinGame(params);
             case "observe" -> observe(params);
-            case "test" -> test(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -293,10 +293,11 @@ public class ChessClient {
         try {
             JoinGameRequest request = new JoinGameRequest(authToken, playerColor, iDUnConverter.get(gameID));
             JoinGameResult result = server.joinGame(request);
-            webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName));
             if (playerColor.equals("WHITE")) {
+                webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName), true);
                 webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.WHITE);
             } else {
+                webSocketFacade = new WebSocketFacade(serverUrl, new GameNotificationHandler(clientName), false);
                 webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.BLACK);
             }
 
@@ -315,14 +316,6 @@ public class ChessClient {
         }
         state = State.IN_GAME;
 
-//        //Filler code for phase 5 - print a default board
-//        ChessBoard newBoard = new ChessBoard();
-//        newBoard.resetBoard();
-//
-//        if (playerColor.equals("WHITE")){
-//            return boardPrinter.printBoard(newBoard, true);
-//        }
-//        return boardPrinter.printBoard(newBoard, false);
         return "";
     }
 
@@ -346,36 +339,19 @@ public class ChessClient {
             return "Looks like that game doesn't exist. Please try again.";
         }
         state = State.OBSERVING;
-
         try {
-            webSocketFacade = new WebSocketFacade(serverUrl, new ObserveNotificationHandler(clientName));
+            webSocketFacade = new WebSocketFacade(serverUrl, new ObserveNotificationHandler(clientName), true);
             webSocketFacade.sendConnectMessage(authToken, iDUnConverter.get(gameID), ConnectCommand.JoinType.OBSERVER);
         } catch (Exception e) {
             return e.getMessage();
         }
 
-//        //Filler code for phase 5 - print a default board
-//        ChessBoard newBoard = new ChessBoard();
-//        newBoard.resetBoard();
-//        return boardPrinter.printBoard(newBoard, true);
         return "";
     }
 
     // TODO: Add commands for in game
     // TODO: Add the Load game as a message the server can send
     // TODO: Add "Make move" and resign and leave as messages WS can send
-
-    private String test(String... params) {
-        try {
-            assertInGame();
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        if (params.length != 0) {
-            return "Expected: test";
-        }
-        return "Tested";
-    }
 
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNED_OUT) {
