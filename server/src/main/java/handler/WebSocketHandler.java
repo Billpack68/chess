@@ -2,6 +2,7 @@ package handler;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -12,6 +13,7 @@ import model.GameData;
 import service.AuthService;
 import service.InvalidAuthTokenException;
 import websocket.commands.ConnectCommand;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -68,10 +70,30 @@ public class WebSocketHandler {
             return;
         }
         ChessGame game = gameData.game();
-        Collection<ChessMove> validMoves = game.validMoves(move.getStartPosition());
-        ChessGame.TeamColor moveColor = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
-        if (game.getTeamTurn() != moveColor || !validMoves.contains(move)) {
+        try {
+            game.makeMove(move);
+        } catch (InvalidMoveException e) {
             sendErrorMessage(ctx, "Error: Looks like that move isn't valid");
+            return;
+        }
+
+        GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
+                gameData.gameName(), game);
+        try {
+            gameDAO.updateGame(gameData, newGameData);
+        } catch (DataAccessException ex) {
+            sendErrorMessage(ctx, "Error: we couldn't access the database.");
+            return;
+        }
+
+        for (WsContext storedCTX : gamers.get(gameID)) {
+            sendLoadGame(gameID, storedCTX);
+            if (!storedCTX.equals(ctx)) {
+                ServerMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        senderAuthData.username() + " made a move");
+                String notificationJson = new Gson().toJson(notification);
+                storedCTX.send(notificationJson);
+            }
         }
     }
 

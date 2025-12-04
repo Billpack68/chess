@@ -377,6 +377,7 @@ public class ChessClient {
             return "Looks like that game doesn't exist. Please try again.";
         }
         state = State.OBSERVING;
+        inGameID = iDUnConverter.get(gameID);
         try {
             webSocketFacade = new WebSocketFacade(serverUrl, new ObserveNotificationHandler(clientName),
                     true);
