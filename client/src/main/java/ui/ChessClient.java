@@ -68,6 +68,7 @@ public class ChessClient {
             case "observe" -> observe(params);
             case "move" -> move(params);
             case "leave" -> leave(params);
+            case "resign" -> resign(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -426,6 +427,20 @@ public class ChessClient {
         inGameID = null;
         state = State.SIGNED_IN;
         return "";
+    }
+
+    private String resign(String... params) {
+        try {
+            assertInGame();
+        } catch (Exception e) {
+            return "You have to be playing a game to use that command";
+        }
+        System.out.println("Are you sure? [Y/N]");
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        if (!line.equalsIgnoreCase("Y")) {return "Command canceled";}
+
+        return "Let's do this :)";
     }
 
     private void assertSignedIn() throws Exception {
