@@ -3,6 +3,7 @@ package websocket;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 
 import com.google.gson.GsonBuilder;
@@ -21,6 +22,7 @@ import websocket.messages.ServerMessage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 public class WebSocketFacade extends Endpoint {
 
@@ -29,6 +31,8 @@ public class WebSocketFacade extends Endpoint {
     private GameStorage gameStorage = new GameStorage(null);
     BoardPrinter printer = new BoardPrinter();
     boolean clientWhite;
+    private final List<String> validLetters = List.of("a", "b", "c", "d", "e", "f", "g", "h");
+
 
     private final Gson gson = createSerializer();
 
@@ -135,6 +139,29 @@ public class WebSocketFacade extends Endpoint {
 
     public String getBoard() {
         return printer.printBoard(gameStorage.getGame().getBoard(), clientWhite);
+    }
+
+    public String highlight(String... params) throws Exception {
+        String letter;
+        try {
+            letter = params[0].substring(0, 1).toLowerCase();
+        } catch (IndexOutOfBoundsException ex) {
+            throw new Exception("Looks like you didn't format that position quite right.\nPlease try again.");
+        }
+        if (!validLetters.contains(letter)) {
+            throw new Exception("Position must start with a, b, c, d, e, f, g, or h");
+        }
+        int col = validLetters.indexOf(letter) + 1;
+
+        String integer;
+        int row;
+        try {
+            integer = params[0].substring(1, 2);
+            row = Integer.parseInt(integer);
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            throw new Exception("Looks like you didn't format that position quite right.\nPlease try again");
+        }
+        return printer.highlight(gameStorage.getGame(), clientWhite, new ChessPosition(row, col));
     }
 
     private void updateStoredGame(ChessGame game) {

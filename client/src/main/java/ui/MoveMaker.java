@@ -8,7 +8,6 @@ import java.util.List;
 
 public class MoveMaker {
     private final List<String> validLetters = List.of("a", "b", "c", "d", "e", "f", "g", "h");
-    private final List<String> validPromotions = List.of("rook", "knight", "bishop", "queen");
 
     public ChessPosition makePosition(String stringPosition) throws Exception {
         String letter;

@@ -1,8 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessMove;
-import chess.ChessPosition;
 import model.GameData;
 import requests.*;
 import results.JoinGameResult;
@@ -12,8 +10,6 @@ import websocket.ObserveNotificationHandler;
 import websocket.WebSocketFacade;
 import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
-
-
 import java.util.*;
 
 public class ChessClient {
@@ -24,7 +20,6 @@ public class ChessClient {
     private State state = State.SIGNED_OUT;
     private Map<Integer, Integer> iDConverter = new HashMap<>();
     private Map<Integer, Integer> iDUnConverter = new HashMap<>();
-    private BoardPrinter boardPrinter = new BoardPrinter();
     private Map<Integer, GameData> gameData = new HashMap<>();
     private WebSocketFacade webSocketFacade;
     private MoveMaker moveMaker = new MoveMaker();
@@ -38,13 +33,11 @@ public class ChessClient {
     public void run() {
         System.out.println("Welcome to the CS240 Chess client! Here's a list of commands to get you started:");
         System.out.print(help());
-
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
-
             try {
                 result = eval(line);
                 System.out.print(result);
@@ -72,6 +65,7 @@ public class ChessClient {
             case "leave" -> leave(params);
             case "resign" -> resign(params);
             case "redraw" -> redraw(params);
+            case "highlight" -> highlight(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -177,7 +171,6 @@ public class ChessClient {
                     return "Oops! Looks like something went wrong with registering. Can you try again?";
                 }
             }
-
             return login(params[0], params[1]);
         }
     }
@@ -265,7 +258,6 @@ public class ChessClient {
         if (params.length != 0) {
             return "Too many arguments. Please just type `list`";
         }
-
         StringBuilder outString = new StringBuilder("Games currently being played:");
         try {
             ListGamesRequest request = new ListGamesRequest(authToken);
@@ -390,7 +382,6 @@ public class ChessClient {
         } catch (Exception e) {
             return e.getMessage();
         }
-
         return help();
     }
 
@@ -400,20 +391,16 @@ public class ChessClient {
         } catch (Exception ex) {
             return "You must be playing a game to use that command";
         }
-
         if (params.length < 2 || params.length > 3) {
             return "Expected: move [start-position] [end-position] [optional: promotion piece]";
         }
-
         ChessMove move;
         try {
             move = moveMaker.makeMove(params);
         } catch (Exception e) {
             return e.getMessage();
         }
-
         webSocketFacade.sendMakeMoveMessage(authToken, inGameID, move);
-
         return "";
     }
 
@@ -445,6 +432,7 @@ public class ChessClient {
         webSocketFacade.sendMessage(UserGameCommand.CommandType.RESIGN, authToken, inGameID);
         return "";
     }
+
     private String redraw(String... params) {
         try {
             assertInGameMode();
@@ -453,6 +441,20 @@ public class ChessClient {
         }
         return webSocketFacade.getBoard();
     }
+
+    private String highlight(String... params) {
+        try { assertInGameMode(); }
+        catch (Exception e) {
+            return "You have to be in a game to use that command";
+        }
+        String output;
+        try { output = webSocketFacade.highlight(params); }
+        catch (Exception e) {
+            return "Expected: highlight [position]\nwhere position is something like 'a3'";
+        }
+        return output;
+    }
+
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNED_OUT) {
             throw new Exception("You must sign in first");
@@ -460,16 +462,19 @@ public class ChessClient {
             throw new Exception("You cannot do that while in a game");
         }
     }
+
     private void assertNotSignedIn() throws Exception {
         if (state != State.SIGNED_OUT) {
             throw new Exception("You must be signed out to use that command");
         }
     }
+
     private void assertInGame() throws Exception {
         if (state != State.IN_GAME) {
             throw new Exception("You must be in a game to use that command");
         }
     }
+
     private void assertInGameMode() throws Exception {
         if (state != State.IN_GAME && state != State.OBSERVING) {
             throw new Exception("You must be in a game to use that command");
