@@ -40,7 +40,9 @@ public class BoardPrinter {
         }
 
         boolean lightAndDark = (row % 2 == col % 2);
-        if (!white) lightAndDark = !lightAndDark;
+        if (!white) {
+            lightAndDark = !lightAndDark;
+        }
 
         String darkBG;
         String lightBG;

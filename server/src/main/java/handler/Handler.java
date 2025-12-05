@@ -149,7 +149,4 @@ public class Handler {
         }
 
     }
-
-    public Set<JoinData> getJoinData() { return joinData; }
-    public void removeJoinData(JoinData data) { joinData.remove(data); }
 }

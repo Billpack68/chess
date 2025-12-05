@@ -7,6 +7,7 @@ import dataaccess.*;
 import handler.Handler;
 import handler.WebSocketHandler;
 import io.javalin.*;
+import io.javalin.websocket.WsMessageContext;
 import org.eclipse.jetty.server.Response;
 import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
@@ -64,17 +65,7 @@ public class Server {
             ws.onMessage(ctx -> {
                 try {
                     UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
-
-                    switch (command.getCommandType()) {
-                        case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken(), command.getGameID(),
-                                ((ConnectCommand) command).getJoinType());
-                        case MAKE_MOVE -> wsHandler.handleMakeMove(ctx, command.getAuthToken(), command.getGameID(),
-                                ((MakeMoveCommand) command).getMove());
-                        case LEAVE -> wsHandler.handleLeave(ctx, command.getAuthToken(), command.getGameID());
-                        case RESIGN -> wsHandler.handleResign(ctx, command.getAuthToken(), command.getGameID());
-                    }
-
-
+                    runCommand(ctx, command);
 
                 } catch (Exception e) {
                     System.err.println("Error parsing WebSocket message: " + e.getMessage());
@@ -83,6 +74,17 @@ public class Server {
 
             ws.onClose(ctx -> System.out.println("WebSocket closed"));
         });
+    }
+
+    private void runCommand(WsMessageContext ctx, UserGameCommand command) {
+        switch (command.getCommandType()) {
+            case CONNECT -> wsHandler.handleConnect(ctx, command.getAuthToken(), command.getGameID(),
+                    ((ConnectCommand) command).getJoinType());
+            case MAKE_MOVE -> wsHandler.handleMakeMove(ctx, command.getAuthToken(), command.getGameID(),
+                    ((MakeMoveCommand) command).getMove());
+            case LEAVE -> wsHandler.handleLeave(ctx, command.getAuthToken(), command.getGameID());
+            case RESIGN -> wsHandler.handleResign(ctx, command.getAuthToken(), command.getGameID());
+        }
     }
 
     public int run(int desiredPort) {
