@@ -10,6 +10,7 @@ import websocket.GameNotificationHandler;
 import websocket.ObserveNotificationHandler;
 import websocket.WebSocketFacade;
 import websocket.commands.ConnectCommand;
+import websocket.commands.UserGameCommand;
 
 
 import java.util.*;
@@ -439,10 +440,9 @@ public class ChessClient {
         Scanner scanner = new Scanner(System.in);
         String line = scanner.nextLine();
         if (!line.equalsIgnoreCase("Y")) {return "Command canceled";}
-
+        webSocketFacade.sendMessage(UserGameCommand.CommandType.RESIGN, authToken, inGameID);
         return "Let's do this :)";
     }
-
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNED_OUT) {
             throw new Exception("You must sign in first");
@@ -450,19 +450,16 @@ public class ChessClient {
             throw new Exception("You cannot do that while in a game");
         }
     }
-
     private void assertNotSignedIn() throws Exception {
         if (state != State.SIGNED_OUT) {
             throw new Exception("You must be signed out to use that command");
         }
     }
-
     private void assertInGame() throws Exception {
         if (state != State.IN_GAME) {
             throw new Exception("You must be in a game to use that command");
         }
     }
-
     private void assertInGameMode() throws Exception {
         if (state != State.IN_GAME && state != State.OBSERVING) {
             throw new Exception("You must be in a game to use that command");

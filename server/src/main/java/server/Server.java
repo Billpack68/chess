@@ -71,6 +71,7 @@ public class Server {
                         case MAKE_MOVE -> wsHandler.handleMakeMove(ctx, command.getAuthToken(), command.getGameID(),
                                 ((MakeMoveCommand) command).getMove());
                         case LEAVE -> wsHandler.handleLeave(ctx, command.getAuthToken(), command.getGameID());
+                        case RESIGN -> wsHandler.handleResign(ctx, command.getAuthToken(), command.getGameID());
                     }
 
 

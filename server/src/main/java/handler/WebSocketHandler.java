@@ -6,6 +6,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import io.javalin.websocket.WsContext;
+import io.javalin.websocket.WsMessageContext;
 import model.AuthData;
 import model.GameData;
 import org.jetbrains.annotations.NotNull;
@@ -196,6 +197,39 @@ public class WebSocketHandler {
         for (WsContext storedCTX : gamers.get(gameID)) {
             ServerMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     senderAuthData.username() + " left the game");
+            String notificationJson = new Gson().toJson(notification);
+            storedCTX.send(notificationJson);
+        }
+    }
+
+    public void handleResign(WsMessageContext ctx, String authToken, Integer gameID) {
+        AuthData senderAuthData = verifyAuth(authToken);
+        if (senderAuthData == null) {
+            sendErrorMessage(ctx, "Error: unable to authenticate user");
+            return;
+        }
+        GameData gameData = null;
+        try {
+            gameData = gameDAO.findGameDataByID(gameID);
+        } catch (DataAccessException e) {
+            sendErrorMessage(ctx, "Error: we couldn't find that game in our database");
+            return;
+        }
+        ChessGame game = gameData.game();
+        game.gameIsOver();
+
+        GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
+                gameData.gameName(), game);
+        try {
+            gameDAO.updateGame(gameData, newGameData);
+        } catch (DataAccessException e) {
+            sendErrorMessage(ctx, "Error: we couldn't access the database");
+            return;
+        }
+
+        for (WsContext storedCTX : gamers.get(gameID)) {
+            ServerMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    senderAuthData.username() + " resigned from the game");
             String notificationJson = new Gson().toJson(notification);
             storedCTX.send(notificationJson);
         }
