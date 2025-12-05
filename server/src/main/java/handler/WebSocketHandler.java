@@ -216,6 +216,10 @@ public class WebSocketHandler {
             return;
         }
         ChessGame game = gameData.game();
+        if (game.isGameOver()) {
+            sendErrorMessage(ctx, "Error: This game is over");
+            return;
+        }
         game.gameIsOver();
 
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
