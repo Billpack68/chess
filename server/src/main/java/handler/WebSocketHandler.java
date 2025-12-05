@@ -177,6 +177,13 @@ public class WebSocketHandler {
         }
 
         gamers.get(gameID).remove(ctx);
+
+        for (WsContext storedCTX : gamers.get(gameID)) {
+            ServerMessage notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    senderAuthData.username() + " left the game");
+            String notificationJson = new Gson().toJson(notification);
+            storedCTX.send(notificationJson);
+        }
     }
 
     private static ServerMessage getServerMessage(boolean isInCheckmate, boolean isInCheck, AuthData senderAuthData,
