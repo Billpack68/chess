@@ -20,6 +20,7 @@ public class ChessGame {
     private boolean whiteCastleLeft;
     private boolean blackCastleRight;
     private boolean blackCastleLeft;
+    private boolean gameOver = false;
 
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
@@ -466,11 +467,6 @@ public class ChessGame {
         gameBoard = board;
     }
 
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
     public ChessBoard getBoard() {
         return gameBoard;
     }
@@ -490,5 +486,13 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return Objects.hash(teamTurn, gameBoard);
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void gameIsOver() {
+        gameOver = true;
     }
 }

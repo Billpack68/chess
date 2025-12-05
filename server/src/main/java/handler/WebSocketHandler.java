@@ -91,6 +91,10 @@ public class WebSocketHandler {
                 return;
             }
         }
+        if (game.isGameOver()) {
+            sendErrorMessage(ctx, "Error: This game is over");
+            return;
+        }
         try {
             game.makeMove(move);
         } catch (InvalidMoveException e) {
@@ -133,6 +137,17 @@ public class WebSocketHandler {
         boolean isInStalemate = !isInCheckmate && !isInCheck && game.isInStalemate(enemyColor);
 
         if (isInCheckmate || isInCheck || isInStalemate) {
+            if (isInCheckmate || isInStalemate) {
+                game.gameIsOver();
+                GameData newerGameData = new GameData(newGameData.gameID(), newGameData.whiteUsername(),
+                        newGameData.blackUsername(), newGameData.gameName(), game);
+                try {
+                    gameDAO.updateGame(newGameData, newerGameData);
+                } catch (DataAccessException ex) {
+                    sendErrorMessage(ctx, "Error: we couldn't access the database.");
+                    return;
+                }
+            }
             for (WsContext storedCTX : gamers.get(gameID)) {
                 ServerMessage notification = getServerMessage(isInCheckmate, isInCheck, senderAuthData, enemyUsername);
                 String notificationJson = new Gson().toJson(notification);
