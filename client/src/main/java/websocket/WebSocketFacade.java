@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
@@ -8,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import jakarta.websocket.*;
 import org.glassfish.tyrus.core.WebSocketException;
+import ui.BoardPrinter;
 import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
@@ -25,7 +27,7 @@ public class WebSocketFacade extends Endpoint {
     Session session;
     ServerMessageObserver serverMessageObserver;
     private GameStorage gameStorage = new GameStorage(null);
-    ChessGame game = null;
+    BoardPrinter printer = new BoardPrinter();
     boolean clientWhite;
 
     private final Gson gson = createSerializer();
@@ -129,6 +131,10 @@ public class WebSocketFacade extends Endpoint {
         } catch (IOException ex) {
             throw new WebsocketException("Error with sending websocket message");
         }
+    }
+
+    public String getBoard() {
+        return printer.printBoard(gameStorage.getGame().getBoard(), clientWhite);
     }
 
     private void updateStoredGame(ChessGame game) {

@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessMove;
 import chess.ChessPosition;
 import model.GameData;
@@ -70,6 +71,7 @@ public class ChessClient {
             case "move" -> move(params);
             case "leave" -> leave(params);
             case "resign" -> resign(params);
+            case "redraw" -> redraw(params);
             case "quit" -> "quit";
             default -> help();
         };
@@ -441,7 +443,15 @@ public class ChessClient {
         String line = scanner.nextLine();
         if (!line.equalsIgnoreCase("Y")) {return "Command canceled";}
         webSocketFacade.sendMessage(UserGameCommand.CommandType.RESIGN, authToken, inGameID);
-        return "Let's do this :)";
+        return "";
+    }
+    private String redraw(String... params) {
+        try {
+            assertInGameMode();
+        } catch (Exception e) {
+            return "You have to be in a game to use that command";
+        }
+        return webSocketFacade.getBoard();
     }
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNED_OUT) {

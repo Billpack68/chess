@@ -18,10 +18,6 @@ public class GameStorage {
         return game;
     }
 
-    public void setGame(ChessGame game) {
-        this.game = game;
-    }
-
     public void updateGame(ChessGame game, boolean white) {
         this.game = game;
         ChessBoard board = game.getBoard();
