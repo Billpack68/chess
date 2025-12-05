@@ -220,6 +220,11 @@ public class WebSocketHandler {
             sendErrorMessage(ctx, "Error: This game is over");
             return;
         }
+        if (!Objects.equals(senderAuthData.username(), gameData.whiteUsername()) &&
+                !Objects.equals(senderAuthData.username(), gameData.blackUsername())) {
+            sendErrorMessage(ctx, "Error: just who do you think you are?");
+            return;
+        }
         game.gameIsOver();
 
         GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),

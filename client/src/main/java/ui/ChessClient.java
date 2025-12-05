@@ -432,7 +432,7 @@ public class ChessClient {
 
     private String resign(String... params) {
         try {
-            assertInGame();
+            assertInGameMode();
         } catch (Exception e) {
             return "You have to be playing a game to use that command";
         }
